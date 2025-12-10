@@ -1,0 +1,134 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-12-10 10:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "section_break_2",
+  "host",
+  "port",
+  "column_break_5",
+  "test_connection",
+  "connection_status",
+  "section_break_8",
+  "sync_settings_section",
+  "auto_sync_customers",
+  "auto_sync_suppliers",
+  "auto_sync_items",
+  "column_break_12",
+  "auto_sync_sales_invoices",
+  "auto_sync_purchase_invoices"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "section_break_2",
+   "fieldtype": "Section Break",
+   "label": "Connection Settings"
+  },
+  {
+   "default": "localhost",
+   "fieldname": "host",
+   "fieldtype": "Data",
+   "label": "Tally Server Host",
+   "reqd": 1
+  },
+  {
+   "default": "9000",
+   "fieldname": "port",
+   "fieldtype": "Int",
+   "label": "Tally Server Port",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "test_connection",
+   "fieldtype": "Button",
+   "label": "Test Connection"
+  },
+  {
+   "fieldname": "connection_status",
+   "fieldtype": "Small Text",
+   "label": "Connection Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sync_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Auto Sync Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_sync_customers",
+   "fieldtype": "Check",
+   "label": "Auto Sync Customers"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_sync_suppliers",
+   "fieldtype": "Check",
+   "label": "Auto Sync Suppliers"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_sync_items",
+   "fieldtype": "Check",
+   "label": "Auto Sync Items"
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_sync_sales_invoices",
+   "fieldtype": "Check",
+   "label": "Auto Sync Sales Invoices"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_sync_purchase_invoices",
+   "fieldtype": "Check",
+   "label": "Auto Sync Purchase Invoices"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-12-10 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Tally",
+ "name": "Tally Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
