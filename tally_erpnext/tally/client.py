@@ -85,7 +85,8 @@ class TallyClient:
 			dict: Company information
 		"""
 		try:
-			return self.client.get_current_company()
+			xml_response = self.client.get_current_company()
+			return self.client.parse_xml_response(xml_response)
 		except Exception as e:
 			frappe.throw(_("Failed to get company info: {0}").format(str(e)))
 
@@ -97,7 +98,13 @@ class TallyClient:
 			list: List of company dictionaries
 		"""
 		try:
-			return self.client.get_companies()
+			xml_response = self.client.get_companies_list()
+			parsed = self.client.parse_xml_response(xml_response)
+			# Extract companies from parsed response
+			companies = parsed.get("ENVELOPE", {}).get("BODY", {}).get("DATA", {}).get("COLLECTION", {}).get("COMPANY", [])
+			if isinstance(companies, dict):
+				companies = [companies]
+			return companies
 		except Exception as e:
 			frappe.throw(_("Failed to get companies: {0}").format(str(e)))
 
@@ -112,11 +119,42 @@ class TallyClient:
 			list: List of ledger dictionaries
 		"""
 		try:
-			return self.client.get_ledgers(company=company)
+			xml_response = self.client.get_ledgers_list(company_name=company)
+			parsed = self.client.parse_xml_response(xml_response)
+
+			# Extract ledgers from parsed response - structure may vary
+			# Try different possible paths in the XML structure
+			ledgers = []
+
+			envelope = parsed.get("ENVELOPE", parsed)
+			body = envelope.get("BODY", envelope)
+			data = body.get("DATA", body)
+			collection = data.get("COLLECTION", data)
+
+			# Ledgers might be under LEDGER key
+			ledger_data = collection.get("LEDGER", [])
+			if isinstance(ledger_data, dict):
+				ledger_data = [ledger_data]
+
+			for ledger in ledger_data:
+				ledgers.append({
+					"name": ledger.get("NAME", ledger.get("@NAME", "")),
+					"parent": ledger.get("PARENT", ""),
+					"guid": ledger.get("GUID", ""),
+					"opening_balance": ledger.get("OPENINGBALANCE", 0),
+					"closing_balance": ledger.get("CLOSINGBALANCE", 0),
+					"address": ledger.get("ADDRESS", ""),
+					"mobile": ledger.get("LEDGERPHONE", ledger.get("MOBILE", "")),
+					"email": ledger.get("EMAIL", ""),
+					"gstin": ledger.get("PARTYGSTIN", ledger.get("GSTIN", "")),
+					"pan": ledger.get("INCOMETAXNUMBER", ledger.get("PAN", "")),
+				})
+
+			return ledgers
 		except Exception as e:
 			frappe.throw(_("Failed to get ledgers: {0}").format(str(e)))
 
-	def create_ledger(self, name, parent, address=None, mobile=None, email=None, **kwargs):
+	def create_ledger(self, name, parent, address=None, mobile=None, gstin=None, **kwargs):
 		"""
 		Create a new ledger in Tally
 
@@ -125,21 +163,21 @@ class TallyClient:
 			parent: Parent ledger group
 			address: Address (optional)
 			mobile: Mobile number (optional)
-			email: Email (optional)
+			gstin: GSTIN (optional)
 			**kwargs: Additional ledger properties
 
 		Returns:
 			dict: Response from Tally
 		"""
 		try:
-			return self.client.create_ledger(
+			xml_response = self.client.create_ledger(
 				name=name,
 				parent=parent,
 				address=address,
 				mobile=mobile,
-				email=email,
-				**kwargs
+				gstin=gstin
 			)
+			return self.client.parse_xml_response(xml_response)
 		except Exception as e:
 			frappe.throw(_("Failed to create ledger: {0}").format(str(e)))
 
@@ -147,20 +185,28 @@ class TallyClient:
 		"""
 		Get all stock items from Tally
 
+		NOTE: The tally-integration package (v1.0.0) does not support stock items.
+		This method returns an empty list. For stock item support, you need to:
+		1. Extend the package with custom XML requests, or
+		2. Wait for package updates with stock item support
+
 		Args:
 			company: Company name (optional)
 
 		Returns:
-			list: List of stock item dictionaries
+			list: Empty list (not supported in current package version)
 		"""
-		try:
-			return self.client.get_stock_items(company=company)
-		except Exception as e:
-			frappe.throw(_("Failed to get stock items: {0}").format(str(e)))
+		frappe.logger("tally_sync").warning(
+			"get_stock_items: Not supported in tally-integration v1.0.0. Returning empty list."
+		)
+		# Stock items not supported in tally-integration v1.0.0
+		return []
 
 	def create_stock_item(self, name, category, unit, **kwargs):
 		"""
 		Create a new stock item in Tally
+
+		NOTE: Not supported in tally-integration v1.0.0
 
 		Args:
 			name: Item name
@@ -169,21 +215,18 @@ class TallyClient:
 			**kwargs: Additional item properties
 
 		Returns:
-			dict: Response from Tally
+			dict: Error response (not supported)
 		"""
-		try:
-			return self.client.create_stock_item(
-				name=name,
-				category=category,
-				unit=unit,
-				**kwargs
-			)
-		except Exception as e:
-			frappe.throw(_("Failed to create stock item: {0}").format(str(e)))
+		frappe.throw(_("Stock item creation not supported in tally-integration v1.0.0"))
 
 	def get_vouchers(self, voucher_type=None, from_date=None, to_date=None):
 		"""
 		Get vouchers from Tally
+
+		NOTE: The tally-integration package (v1.0.0) does not support vouchers.
+		This method returns an empty list. For voucher support, you need to:
+		1. Extend the package with custom XML requests, or
+		2. Wait for package updates with voucher support
 
 		Args:
 			voucher_type: Type of voucher (Sales, Purchase, etc.)
@@ -191,20 +234,19 @@ class TallyClient:
 			to_date: End date (optional)
 
 		Returns:
-			list: List of voucher dictionaries
+			list: Empty list (not supported in current package version)
 		"""
-		try:
-			return self.client.get_vouchers(
-				voucher_type=voucher_type,
-				from_date=from_date,
-				to_date=to_date
-			)
-		except Exception as e:
-			frappe.throw(_("Failed to get vouchers: {0}").format(str(e)))
+		frappe.logger("tally_sync").warning(
+			"get_vouchers: Not supported in tally-integration v1.0.0. Returning empty list."
+		)
+		# Vouchers not supported in tally-integration v1.0.0
+		return []
 
 	def create_voucher(self, voucher_type, date, ledger_entries, narration=None, **kwargs):
 		"""
 		Create a voucher in Tally
+
+		NOTE: Not supported in tally-integration v1.0.0
 
 		Args:
 			voucher_type: Type of voucher (Sales, Purchase, Receipt, Payment, Journal)
@@ -214,33 +256,26 @@ class TallyClient:
 			**kwargs: Additional voucher properties
 
 		Returns:
-			dict: Response from Tally
+			dict: Error response (not supported)
 		"""
-		try:
-			return self.client.create_voucher(
-				voucher_type=voucher_type,
-				date=date,
-				ledger_entries=ledger_entries,
-				narration=narration,
-				**kwargs
-			)
-		except Exception as e:
-			frappe.throw(_("Failed to create voucher: {0}").format(str(e)))
+		frappe.throw(_("Voucher creation not supported in tally-integration v1.0.0"))
 
 	def get_groups(self, group_type="Ledger"):
 		"""
 		Get groups from Tally
 
+		NOTE: Not supported in tally-integration v1.0.0
+
 		Args:
 			group_type: Type of group (Ledger, Stock, etc.)
 
 		Returns:
-			list: List of group dictionaries
+			list: Empty list (not supported)
 		"""
-		try:
-			return self.client.get_groups(group_type=group_type)
-		except Exception as e:
-			frappe.throw(_("Failed to get groups: {0}").format(str(e)))
+		frappe.logger("tally_sync").warning(
+			"get_groups: Not supported in tally-integration v1.0.0. Returning empty list."
+		)
+		return []
 
 
 @frappe.whitelist()
