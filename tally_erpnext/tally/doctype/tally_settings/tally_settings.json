@@ -12,6 +12,14 @@
   "column_break_5",
   "test_connection",
   "connection_status",
+  "company_section",
+  "default_company",
+  "scheduler_section",
+  "auto_sync",
+  "column_break_scheduler",
+  "sync_ledgers",
+  "sync_stock_items",
+  "sync_vouchers",
   "section_break_8",
   "sync_settings_section",
   "auto_sync_customers",
@@ -63,6 +71,54 @@
    "read_only": 1
   },
   {
+   "fieldname": "company_section",
+   "fieldtype": "Section Break",
+   "label": "Company Settings"
+  },
+  {
+   "fieldname": "default_company",
+   "fieldtype": "Data",
+   "label": "Default Tally Company",
+   "description": "Company name in Tally to sync with"
+  },
+  {
+   "fieldname": "scheduler_section",
+   "fieldtype": "Section Break",
+   "label": "Scheduled Sync Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_sync",
+   "fieldtype": "Check",
+   "label": "Enable Auto Sync",
+   "description": "Enable automatic scheduled sync from Tally (runs every minute)"
+  },
+  {
+   "fieldname": "column_break_scheduler",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "depends_on": "auto_sync",
+   "fieldname": "sync_ledgers",
+   "fieldtype": "Check",
+   "label": "Sync Ledgers"
+  },
+  {
+   "default": "1",
+   "depends_on": "auto_sync",
+   "fieldname": "sync_stock_items",
+   "fieldtype": "Check",
+   "label": "Sync Stock Items"
+  },
+  {
+   "default": "1",
+   "depends_on": "auto_sync",
+   "fieldname": "sync_vouchers",
+   "fieldtype": "Check",
+   "label": "Sync Vouchers"
+  },
+  {
    "fieldname": "section_break_8",
    "fieldtype": "Section Break"
   },
@@ -70,25 +126,25 @@
    "collapsible": 1,
    "fieldname": "sync_settings_section",
    "fieldtype": "Section Break",
-   "label": "Auto Sync Settings"
+   "label": "ERPNext Mapping Settings (Server Scripts)"
   },
   {
    "default": "0",
    "fieldname": "auto_sync_customers",
    "fieldtype": "Check",
-   "label": "Auto Sync Customers"
+   "label": "Auto Create Customers"
   },
   {
    "default": "0",
    "fieldname": "auto_sync_suppliers",
    "fieldtype": "Check",
-   "label": "Auto Sync Suppliers"
+   "label": "Auto Create Suppliers"
   },
   {
    "default": "0",
    "fieldname": "auto_sync_items",
    "fieldtype": "Check",
-   "label": "Auto Sync Items"
+   "label": "Auto Create Items"
   },
   {
    "fieldname": "column_break_12",
@@ -98,13 +154,13 @@
    "default": "0",
    "fieldname": "auto_sync_sales_invoices",
    "fieldtype": "Check",
-   "label": "Auto Sync Sales Invoices"
+   "label": "Auto Create Sales Invoices"
   },
   {
    "default": "0",
    "fieldname": "auto_sync_purchase_invoices",
    "fieldtype": "Check",
-   "label": "Auto Sync Purchase Invoices"
+   "label": "Auto Create Purchase Invoices"
   }
  ],
  "index_web_pages_for_search": 1,

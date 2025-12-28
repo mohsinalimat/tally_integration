@@ -148,23 +148,14 @@ app_license = "gpl-3.0"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"tally_erpnext.tasks.all"
-# 	],
-# 	"daily": [
-# 		"tally_erpnext.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"tally_erpnext.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"tally_erpnext.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"tally_erpnext.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	# Sync from Tally every 1 minute
+	"cron": {
+		"* * * * *": [
+			"tally_erpnext.tally.tasks.sync_all_from_tally"
+		]
+	}
+}
 
 # Testing
 # -------
