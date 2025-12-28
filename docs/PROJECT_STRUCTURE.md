@@ -3,7 +3,7 @@
 ## 📁 Directory Structure
 
 ```
-tally_integration/
+tally_erpnext/
 ├── README.md                          # Main README with overview
 ├── license.txt                        # GPL v3.0 license
 ├── pyproject.toml                     # Project dependencies
@@ -18,7 +18,7 @@ tally_integration/
 │   ├── SERVER_SCRIPTS_GUIDE.md        # Server Scripts examples
 │   └── IMPLEMENTATION_SUMMARY.md      # Implementation overview
 │
-└── tally_integration/                 # 📦 Main app package
+└── tally_erpnext/                 # 📦 Main app package
     ├── __init__.py
     ├── hooks.py                       # Frappe hooks
     ├── modules.txt                    # Module: Tally
@@ -93,25 +93,25 @@ All documentation is in the `/docs` directory:
 
 ### Integration Layer
 
-**[tally_integration/tally/client.py](tally_integration/tally/client.py)**
+**[tally_erpnext/tally/client.py](tally_erpnext/tally/client.py)**
 - TallyClient wrapper class
 - Connection management
 - Error handling
 - Frappe settings integration
 
-**[tally_integration/tally/api.py](tally_integration/tally/api.py)**
+**[tally_erpnext/tally/api.py](tally_erpnext/tally/api.py)**
 - Whitelisted API endpoints
 - Frontend callable methods
 - CRUD operations
 
-**[tally_integration/tally/utils.py](tally_integration/tally/utils.py)**
+**[tally_erpnext/tally/utils.py](tally_erpnext/tally/utils.py)**
 - Helper functions
 - Data mapping utilities
 - Legacy sync functions
 
 ### DocType Sync Engine (NEW!)
 
-**[tally_integration/tally/doctype_sync.py](tally_integration/tally/doctype_sync.py)**
+**[tally_erpnext/tally/doctype_sync.py](tally_erpnext/tally/doctype_sync.py)**
 - `sync_ledgers_from_tally()` - Pull ledgers
 - `sync_stock_items_from_tally()` - Pull items
 - `sync_vouchers_from_tally()` - Pull vouchers
@@ -235,7 +235,7 @@ ERPNext DocTypes (Customer, Item, Invoice)
 ### 1. Direct API Usage
 
 ```python
-from tally_integration.tally import TallyClient
+from tally_erpnext.tally import TallyClient
 
 client = TallyClient()
 ledgers = client.get_ledgers()
@@ -244,7 +244,7 @@ ledgers = client.get_ledgers()
 ### 2. DocType Sync
 
 ```python
-from tally_integration.tally.doctype_sync import sync_ledgers_from_tally
+from tally_erpnext.tally.doctype_sync import sync_ledgers_from_tally
 
 result = sync_ledgers_from_tally()
 ```
@@ -262,7 +262,7 @@ See [docs/SERVER_SCRIPTS_GUIDE.md](docs/SERVER_SCRIPTS_GUIDE.md)
 
 ```javascript
 frappe.call({
-    method: "tally_integration.tally.doctype_sync.sync_all_ledgers",
+    method: "tally_erpnext.tally.doctype_sync.sync_all_ledgers",
     callback: function(r) { console.log(r.message); }
 });
 ```
@@ -290,7 +290,7 @@ Create custom DocTypes that link to Tally DocTypes
 Add to `hooks.py`:
 ```python
 scheduler_events = {
-    "daily": ["tally_integration.tally.tasks.daily_sync"]
+    "daily": ["tally_erpnext.tally.tasks.daily_sync"]
 }
 ```
 
@@ -299,9 +299,9 @@ scheduler_events = {
 ### Development
 
 ```bash
-bench get-app tally_integration
-bench install-app tally_integration
-cd apps/tally_integration
+bench get-app tally_erpnext
+bench install-app tally_erpnext
+cd apps/tally_erpnext
 pip install -e .
 bench migrate
 bench restart
@@ -326,19 +326,19 @@ sudo supervisorctl restart all
 ## 🔍 Finding Things
 
 ### "Where is the sync logic?"
-→ `tally_integration/tally/doctype_sync.py`
+→ `tally_erpnext/tally/doctype_sync.py`
 
 ### "Where are the API endpoints?"
-→ `tally_integration/tally/api.py`
+→ `tally_erpnext/tally/api.py`
 
 ### "How do I setup auto-sync?"
 → `docs/SERVER_SCRIPTS_GUIDE.md`
 
 ### "Where is the TallyClient?"
-→ `tally_integration/tally/client.py`
+→ `tally_erpnext/tally/client.py`
 
 ### "Where are the DocType definitions?"
-→ `tally_integration/tally/doctype/*/`
+→ `tally_erpnext/tally/doctype/*/`
 
 ### "Where is the documentation?"
 → `docs/` directory

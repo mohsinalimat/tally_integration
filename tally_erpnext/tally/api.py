@@ -7,7 +7,7 @@ that can be called from the frontend or external systems.
 
 import frappe
 from frappe import _
-from tally_integration.tally.client import TallyClient
+from tally_erpnext.tally.client import TallyClient
 
 
 @frappe.whitelist()
@@ -225,7 +225,7 @@ def sync_customers_from_tally():
 		dict: Response with sync status
 	"""
 	try:
-		from tally_integration.tally.utils import sync_customers
+		from tally_erpnext.tally.utils import sync_customers
 		result = sync_customers()
 		return {"success": True, "data": result}
 	except Exception as e:
@@ -242,7 +242,7 @@ def sync_items_from_tally():
 		dict: Response with sync status
 	"""
 	try:
-		from tally_integration.tally.utils import sync_items
+		from tally_erpnext.tally.utils import sync_items
 		result = sync_items()
 		return {"success": True, "data": result}
 	except Exception as e:
@@ -262,7 +262,7 @@ def push_sales_invoice_to_tally(sales_invoice_name):
 		dict: Response with push status
 	"""
 	try:
-		from tally_integration.tally.utils import push_sales_invoice
+		from tally_erpnext.tally.utils import push_sales_invoice
 		result = push_sales_invoice(sales_invoice_name)
 		return {"success": True, "data": result}
 	except Exception as e:

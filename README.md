@@ -26,7 +26,7 @@ A comprehensive integration app that connects ERPNext with TallyPrime/Tally.ERP 
 ```bash
 cd $PATH_TO_YOUR_BENCH
 bench get-app $URL_OF_THIS_REPO --branch develop
-bench install-app tally_integration
+bench install-app tally_erpnext
 ```
 
 ### 2. Install Dependencies
@@ -34,7 +34,7 @@ bench install-app tally_integration
 The app uses the `tally-integration` PyPI package which will be automatically installed:
 
 ```bash
-cd apps/tally_integration
+cd apps/tally_erpnext
 pip install -e .
 ```
 
@@ -60,7 +60,7 @@ pip install -e .
 ### Test Connection
 
 ```python
-from tally_integration.tally import TallyClient
+from tally_erpnext.tally import TallyClient
 
 client = TallyClient()
 if client.test_connection():
@@ -70,7 +70,7 @@ if client.test_connection():
 ### Sync Customers from Tally
 
 ```python
-from tally_integration.tally.utils import sync_customers
+from tally_erpnext.tally.utils import sync_customers
 
 result = sync_customers()
 print(f"Synced {result['created']} customers")
@@ -79,7 +79,7 @@ print(f"Synced {result['created']} customers")
 ### Push Sales Invoice to Tally
 
 ```python
-from tally_integration.tally.utils import push_sales_invoice
+from tally_erpnext.tally.utils import push_sales_invoice
 
 result = push_sales_invoice("SINV-2025-00001")
 print(f"Created voucher: {result['tally_response']['voucher_number']}")
@@ -139,7 +139,7 @@ Use **Server Scripts** to manage automatic synchronization:
 This app uses `pre-commit` for code formatting and linting. Please [install pre-commit](https://pre-commit.com/#installation) and enable it for this repository:
 
 ```bash
-cd apps/tally_integration
+cd apps/tally_erpnext
 pre-commit install
 ```
 

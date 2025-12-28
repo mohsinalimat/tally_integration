@@ -79,7 +79,7 @@ This guide explains the **DocType-based architecture** for Tally integration. Th
 
 **Example**:
 ```python
-from tally_integration.tally.doctype_sync import create_sync_log
+from tally_erpnext.tally.doctype_sync import create_sync_log
 
 create_sync_log(
     sync_type="Master Data",
@@ -248,7 +248,7 @@ voucher.submit()
 #### 1. Sync from Tally to ERP
 
 ```python
-from tally_integration.tally.doctype_sync import (
+from tally_erpnext.tally.doctype_sync import (
     sync_ledgers_from_tally,
     sync_stock_items_from_tally,
     sync_vouchers_from_tally
@@ -275,7 +275,7 @@ result = sync_vouchers_from_tally(
 #### 2. Sync from ERP to Tally
 
 ```python
-from tally_integration.tally.doctype_sync import (
+from tally_erpnext.tally.doctype_sync import (
     sync_ledger_to_tally,
     sync_stock_item_to_tally,
     sync_voucher_to_tally
@@ -334,7 +334,7 @@ All sync functions are exposed as API endpoints:
 ```javascript
 // Sync all ledgers from Tally
 frappe.call({
-    method: "tally_integration.tally.doctype_sync.sync_all_ledgers",
+    method: "tally_erpnext.tally.doctype_sync.sync_all_ledgers",
     args: {
         company: "My Company",
         parent_group: "Sundry Debtors"
@@ -346,7 +346,7 @@ frappe.call({
 
 // Sync all stock items
 frappe.call({
-    method: "tally_integration.tally.doctype_sync.sync_all_stock_items",
+    method: "tally_erpnext.tally.doctype_sync.sync_all_stock_items",
     callback: function(r) {
         console.log(r.message);
     }
@@ -354,7 +354,7 @@ frappe.call({
 
 // Sync vouchers
 frappe.call({
-    method: "tally_integration.tally.doctype_sync.sync_all_vouchers",
+    method: "tally_erpnext.tally.doctype_sync.sync_all_vouchers",
     args: {
         voucher_type: "Sales",
         from_date: "2025-12-01",
@@ -375,10 +375,10 @@ Add to `hooks.py` for automatic sync:
 ```python
 scheduler_events = {
     "daily": [
-        "tally_integration.tally.scheduled_tasks.daily_sync_from_tally"
+        "tally_erpnext.tally.scheduled_tasks.daily_sync_from_tally"
     ],
     "hourly": [
-        "tally_integration.tally.scheduled_tasks.hourly_sync_from_tally"
+        "tally_erpnext.tally.scheduled_tasks.hourly_sync_from_tally"
     ]
 }
 ```
@@ -549,4 +549,4 @@ The DocType-based architecture provides:
 For detailed code examples, see:
 - [server_scripts_examples.md](./examples/server_scripts_examples.md)
 - [TALLY_INTEGRATION_GUIDE.md](./TALLY_INTEGRATION_GUIDE.md)
-- [doctype_sync.py](./tally_integration/tally/doctype_sync.py)
+- [doctype_sync.py](./tally_erpnext/tally/doctype_sync.py)

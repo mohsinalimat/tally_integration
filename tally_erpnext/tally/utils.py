@@ -7,7 +7,7 @@ between ERPNext and Tally.
 
 import frappe
 from frappe import _
-from tally_integration.tally.client import TallyClient
+from tally_erpnext.tally.client import TallyClient
 
 
 def get_tally_client():

@@ -495,19 +495,19 @@ Add this to your `hooks.py`:
 ```python
 scheduler_events = {
     "daily": [
-        "tally_integration.tally.scheduled_tasks.daily_sync_from_tally"
+        "tally_erpnext.tally.scheduled_tasks.daily_sync_from_tally"
     ],
     "hourly": [
-        "tally_integration.tally.scheduled_tasks.hourly_sync_from_tally"
+        "tally_erpnext.tally.scheduled_tasks.hourly_sync_from_tally"
     ]
 }
 ```
 
-Then create `tally_integration/tally/scheduled_tasks.py`:
+Then create `tally_erpnext/tally/scheduled_tasks.py`:
 
 ```python
 import frappe
-from tally_integration.tally.doctype_sync import (
+from tally_erpnext.tally.doctype_sync import (
     sync_ledgers_from_tally,
     sync_stock_items_from_tally,
     sync_vouchers_from_tally

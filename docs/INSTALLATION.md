@@ -35,13 +35,13 @@ If you see XML output, the API is working correctly.
 cd /path/to/frappe-bench
 
 # Get the app
-bench get-app https://github.com/your-org/tally_integration --branch develop
+bench get-app https://github.com/your-org/tally_erpnext --branch develop
 
 # Install the app on your site
-bench --site your-site-name install-app tally_integration
+bench --site your-site-name install-app tally_erpnext
 
 # Install dependencies
-cd apps/tally_integration
+cd apps/tally_erpnext
 pip install -e .
 
 # Migrate database
@@ -57,15 +57,15 @@ bench restart
 cd /path/to/frappe-bench/apps
 
 # Clone the repository
-git clone https://github.com/your-org/tally_integration
-cd tally_integration
+git clone https://github.com/your-org/tally_erpnext
+cd tally_erpnext
 
 # Install in development mode
 pip install -e .
 
 # Install on site
 cd ../..
-bench --site your-site-name install-app tally_integration
+bench --site your-site-name install-app tally_erpnext
 bench --site your-site-name migrate
 bench restart
 ```
@@ -167,7 +167,7 @@ create_custom_fields(custom_fields, update=True)
 # Run from bench console
 bench --site your-site-name console
 
-from tally_integration.tally import TallyClient
+from tally_erpnext.tally import TallyClient
 
 client = TallyClient()
 if client.test_connection():
@@ -179,7 +179,7 @@ else:
 ### Test 2: Get Company Info
 
 ```python
-from tally_integration.tally import TallyClient
+from tally_erpnext.tally import TallyClient
 
 client = TallyClient()
 company = client.get_current_company()
@@ -191,7 +191,7 @@ print(f"Company: {company}")
 ```bash
 # From bench directory
 bench --site your-site-name console
->>> exec(open('apps/tally_integration/examples/basic_usage.py').read())
+>>> exec(open('apps/tally_erpnext/examples/basic_usage.py').read())
 ```
 
 ## Troubleshooting
@@ -206,13 +206,13 @@ bench --site your-site-name console
 3. Verify host/port settings in Tally Settings
 4. Test connection: `curl -X POST http://localhost:9000`
 
-### Issue: "Module 'tally_integration' not found"
+### Issue: "Module 'tally_erpnext' not found"
 
 **Cause**: Dependencies not installed
 
 **Solution**:
 ```bash
-cd apps/tally_integration
+cd apps/tally_erpnext
 pip install -e .
 bench restart
 ```
@@ -223,7 +223,7 @@ bench restart
 
 **Solution**:
 ```bash
-bench --site your-site-name install-app tally_integration
+bench --site your-site-name install-app tally_erpnext
 bench --site your-site-name migrate
 bench restart
 ```
@@ -276,10 +276,10 @@ If you need to uninstall:
 
 ```bash
 # Uninstall from site
-bench --site your-site-name uninstall-app tally_integration
+bench --site your-site-name uninstall-app tally_erpnext
 
 # Remove app files (optional)
-rm -rf apps/tally_integration
+rm -rf apps/tally_erpnext
 ```
 
 ## Next Steps

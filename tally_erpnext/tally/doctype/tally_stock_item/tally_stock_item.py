@@ -19,7 +19,7 @@ class TallyStockItem(Document):
 		if self.auto_sync and self.sync_direction in ["ERP to Tally", "Bidirectional"]:
 			if self.has_value_changed("item_name") or self.has_value_changed("category"):
 				frappe.enqueue(
-					"tally_integration.tally.doctype_sync.sync_stock_item_to_tally",
+					"tally_erpnext.tally.doctype_sync.sync_stock_item_to_tally",
 					queue="short",
 					timeout=300,
 					item_name=self.name,
@@ -30,7 +30,7 @@ class TallyStockItem(Document):
 		"""Handle new item creation"""
 		if self.auto_sync and self.sync_direction in ["ERP to Tally", "Bidirectional"]:
 			frappe.enqueue(
-				"tally_integration.tally.doctype_sync.sync_stock_item_to_tally",
+				"tally_erpnext.tally.doctype_sync.sync_stock_item_to_tally",
 				queue="short",
 				timeout=300,
 				item_name=self.name,

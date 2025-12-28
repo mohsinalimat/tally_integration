@@ -7,9 +7,9 @@ Get started with Tally Integration using the DocType-based architecture in 5 min
 ```bash
 # Install the app
 cd frappe-bench
-bench get-app tally_integration
-bench install-app tally_integration
-cd apps/tally_integration
+bench get-app tally_erpnext
+bench install-app tally_erpnext
+cd apps/tally_erpnext
 pip install -e .
 bench migrate
 bench restart
@@ -27,7 +27,7 @@ bench restart
 Open **Console** (`bench console`) and run:
 
 ```python
-from tally_integration.tally.doctype_sync import *
+from tally_erpnext.tally.doctype_sync import *
 
 # Sync all ledgers from Tally
 result = sync_ledgers_from_tally()
@@ -165,7 +165,7 @@ frappe.msgprint(f"Tally Voucher created: {tally_voucher.name}", alert=True)
 1. Create a new ledger in Tally (under Sundry Debtors)
 2. In ERPNext Console:
    ```python
-   from tally_integration.tally.doctype_sync import sync_ledgers_from_tally
+   from tally_erpnext.tally.doctype_sync import sync_ledgers_from_tally
    result = sync_ledgers_from_tally(parent_group="Sundry Debtors")
    print(result)
    ```
@@ -238,7 +238,7 @@ Create/Update Customer
 
 ```python
 # Import
-from tally_integration.tally.doctype_sync import *
+from tally_erpnext.tally.doctype_sync import *
 
 # Sync from Tally
 sync_ledgers_from_tally()  # All ledgers
@@ -267,7 +267,7 @@ create_sync_log(
 ```javascript
 // From frontend JavaScript
 frappe.call({
-    method: "tally_integration.tally.doctype_sync.sync_all_ledgers",
+    method: "tally_erpnext.tally.doctype_sync.sync_all_ledgers",
     callback: function(r) {
         console.log(r.message);
     }
@@ -281,16 +281,16 @@ Add to `hooks.py`:
 ```python
 scheduler_events = {
     "daily": [
-        "tally_integration.tally.scheduled_tasks.daily_sync_from_tally"
+        "tally_erpnext.tally.scheduled_tasks.daily_sync_from_tally"
     ]
 }
 ```
 
-Create `tally_integration/tally/scheduled_tasks.py`:
+Create `tally_erpnext/tally/scheduled_tasks.py`:
 
 ```python
 import frappe
-from tally_integration.tally.doctype_sync import *
+from tally_erpnext.tally.doctype_sync import *
 
 def daily_sync_from_tally():
     settings = frappe.get_doc("Tally Settings", "Tally Settings")

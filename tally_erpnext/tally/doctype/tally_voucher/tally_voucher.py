@@ -42,7 +42,7 @@ class TallyVoucher(Document):
 		"""Handle voucher submission and sync to Tally"""
 		if self.auto_sync and self.sync_direction in ["ERP to Tally", "Bidirectional"]:
 			frappe.enqueue(
-				"tally_integration.tally.doctype_sync.sync_voucher_to_tally",
+				"tally_erpnext.tally.doctype_sync.sync_voucher_to_tally",
 				queue="short",
 				timeout=300,
 				voucher_name=self.name,
@@ -54,7 +54,7 @@ class TallyVoucher(Document):
 		self.is_cancelled = 1
 		if self.auto_sync and self.sync_direction in ["ERP to Tally", "Bidirectional"]:
 			frappe.enqueue(
-				"tally_integration.tally.doctype_sync.cancel_voucher_in_tally",
+				"tally_erpnext.tally.doctype_sync.cancel_voucher_in_tally",
 				queue="short",
 				timeout=300,
 				voucher_name=self.name

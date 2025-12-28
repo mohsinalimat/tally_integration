@@ -10,7 +10,7 @@ from frappe import _
 from frappe.utils import now
 import json
 import traceback
-from tally_integration.tally.client import TallyClient
+from tally_erpnext.tally.client import TallyClient
 
 
 def create_sync_log(sync_type, operation, status, direction, entity_type, entity_name=None,

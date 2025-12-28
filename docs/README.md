@@ -177,10 +177,10 @@ See [Architecture Guide](DOCTYPE_ARCHITECTURE.md) for detailed diagrams.
 - Python 3.10+
 
 ### Key Files
-- `tally_integration/tally/client.py` - TallyClient wrapper
-- `tally_integration/tally/doctype_sync.py` - Sync engine
-- `tally_integration/tally/api.py` - API endpoints
-- `tally_integration/tally/utils.py` - Utility functions
+- `tally_erpnext/tally/client.py` - TallyClient wrapper
+- `tally_erpnext/tally/doctype_sync.py` - Sync engine
+- `tally_erpnext/tally/api.py` - API endpoints
+- `tally_erpnext/tally/utils.py` - Utility functions
 
 See [Implementation Summary - File Structure](IMPLEMENTATION_SUMMARY.md#-file-structure) for complete structure.
 

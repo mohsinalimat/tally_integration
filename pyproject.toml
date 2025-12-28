@@ -1,5 +1,5 @@
 [project]
-name = "tally_integration"
+name = "tally_erpnext"
 authors = [
     { name = "SVNIX Solutions", email = "contact@svnix.solutions"}
 ]

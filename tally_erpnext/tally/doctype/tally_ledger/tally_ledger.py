@@ -19,7 +19,7 @@ class TallyLedger(Document):
 		if self.auto_sync and self.sync_direction in ["ERP to Tally", "Bidirectional"]:
 			if self.has_value_changed("ledger_name") or self.has_value_changed("parent_group"):
 				frappe.enqueue(
-					"tally_integration.tally.doctype_sync.sync_ledger_to_tally",
+					"tally_erpnext.tally.doctype_sync.sync_ledger_to_tally",
 					queue="short",
 					timeout=300,
 					ledger_name=self.name,
@@ -30,7 +30,7 @@ class TallyLedger(Document):
 		"""Handle new ledger creation"""
 		if self.auto_sync and self.sync_direction in ["ERP to Tally", "Bidirectional"]:
 			frappe.enqueue(
-				"tally_integration.tally.doctype_sync.sync_ledger_to_tally",
+				"tally_erpnext.tally.doctype_sync.sync_ledger_to_tally",
 				queue="short",
 				timeout=300,
 				ledger_name=self.name,

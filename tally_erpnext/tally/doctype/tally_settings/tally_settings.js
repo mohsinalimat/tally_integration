@@ -12,7 +12,7 @@ frappe.ui.form.on("Tally Settings", {
 	test_connection(frm) {
 		// Test connection to Tally server
 		frappe.call({
-			method: "tally_integration.tally.test_tally_connection",
+			method: "tally_erpnext.tally.test_tally_connection",
 			args: {
 				host: frm.doc.host,
 				port: frm.doc.port

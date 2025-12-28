@@ -12,14 +12,14 @@ The Tally Integration app connects ERPNext with TallyPrime/Tally.ERP 9 using the
 
 ```bash
 cd frappe-bench
-bench get-app https://github.com/your-repo/tally_integration --branch develop
-bench install-app tally_integration
+bench get-app https://github.com/your-repo/tally_erpnext --branch develop
+bench install-app tally_erpnext
 ```
 
 ### 2. Install Dependencies
 
 ```bash
-cd apps/tally_integration
+cd apps/tally_erpnext
 pip install -e .
 ```
 
@@ -60,7 +60,7 @@ Enable automatic synchronization for:
 
 ```python
 import frappe
-from tally_integration.tally import TallyClient
+from tally_erpnext.tally import TallyClient
 
 # Create client instance
 client = TallyClient()
@@ -79,7 +79,7 @@ print(f"Company: {company}")
 #### Get Companies
 
 ```python
-from tally_integration.tally import TallyClient
+from tally_erpnext.tally import TallyClient
 
 client = TallyClient()
 companies = client.get_companies()
@@ -193,7 +193,7 @@ response = client.create_voucher(
 #### Sync Customers from Tally to ERPNext
 
 ```python
-from tally_integration.tally.utils import sync_customers
+from tally_erpnext.tally.utils import sync_customers
 
 # Sync all customers
 result = sync_customers()
@@ -203,7 +203,7 @@ print(f"Created: {result['created']}, Updated: {result['updated']}, Skipped: {re
 #### Sync Items from Tally to ERPNext
 
 ```python
-from tally_integration.tally.utils import sync_items
+from tally_erpnext.tally.utils import sync_items
 
 # Sync all items
 result = sync_items()
@@ -213,7 +213,7 @@ print(f"Created: {result['created']}, Updated: {result['updated']}, Skipped: {re
 #### Push Sales Invoice to Tally
 
 ```python
-from tally_integration.tally.utils import push_sales_invoice
+from tally_erpnext.tally.utils import push_sales_invoice
 
 # Push a specific sales invoice
 result = push_sales_invoice("SINV-2025-00001")
@@ -223,7 +223,7 @@ print(f"Tally Voucher Number: {result['tally_response']['voucher_number']}")
 #### Create Customer in Tally from ERPNext
 
 ```python
-from tally_integration.tally.utils import create_customer_in_tally
+from tally_erpnext.tally.utils import create_customer_in_tally
 
 # Create customer in Tally
 response = create_customer_in_tally("ABC Corporation")
@@ -232,7 +232,7 @@ response = create_customer_in_tally("ABC Corporation")
 #### Create Item in Tally from ERPNext
 
 ```python
-from tally_integration.tally.utils import create_item_in_tally
+from tally_erpnext.tally.utils import create_item_in_tally
 
 # Create item in Tally
 response = create_item_in_tally("ITEM-001")
@@ -245,7 +245,7 @@ All API endpoints are whitelisted and can be called via HTTP or from frontend Ja
 ```javascript
 // Test connection
 frappe.call({
-    method: "tally_integration.tally.test_tally_connection",
+    method: "tally_erpnext.tally.test_tally_connection",
     args: {
         host: "localhost",
         port: 9000
@@ -257,7 +257,7 @@ frappe.call({
 
 // Get companies
 frappe.call({
-    method: "tally_integration.tally.api.get_companies",
+    method: "tally_erpnext.tally.api.get_companies",
     callback: function(r) {
         if (r.message.success) {
             console.log(r.message.data);
@@ -267,7 +267,7 @@ frappe.call({
 
 // Sync customers
 frappe.call({
-    method: "tally_integration.tally.api.sync_customers_from_tally",
+    method: "tally_erpnext.tally.api.sync_customers_from_tally",
     freeze: true,
     freeze_message: "Syncing customers from Tally...",
     callback: function(r) {
@@ -308,11 +308,11 @@ You can add hooks to automatically sync data on document events. Add to `hooks.p
 ```python
 doc_events = {
     "Customer": {
-        "after_insert": "tally_integration.tally.hooks.customer_after_insert",
-        "on_update": "tally_integration.tally.hooks.customer_on_update"
+        "after_insert": "tally_erpnext.tally.hooks.customer_after_insert",
+        "on_update": "tally_erpnext.tally.hooks.customer_on_update"
     },
     "Sales Invoice": {
-        "on_submit": "tally_integration.tally.hooks.sales_invoice_on_submit"
+        "on_submit": "tally_erpnext.tally.hooks.sales_invoice_on_submit"
     }
 }
 ```
@@ -357,7 +357,7 @@ doc_events = {
 
 ### Custom Field Mappings
 
-Modify `tally_integration/tally/utils.py` to customize how ERPNext data maps to Tally:
+Modify `tally_erpnext/tally/utils.py` to customize how ERPNext data maps to Tally:
 
 ```python
 def map_erpnext_customer_to_tally_ledger(customer_name):
@@ -381,10 +381,10 @@ Add to `hooks.py` for automatic synchronization:
 ```python
 scheduler_events = {
     "daily": [
-        "tally_integration.tally.tasks.sync_daily_transactions"
+        "tally_erpnext.tally.tasks.sync_daily_transactions"
     ],
     "hourly": [
-        "tally_integration.tally.tasks.sync_new_customers"
+        "tally_erpnext.tally.tasks.sync_new_customers"
     ]
 }
 ```

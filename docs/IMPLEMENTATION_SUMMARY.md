@@ -10,18 +10,18 @@ A comprehensive **DocType-based Tally Integration** system that enables **bidire
 
 ### 1. Core Integration Layer
 
-#### TallyClient Wrapper ([client.py](tally_integration/tally/client.py))
+#### TallyClient Wrapper ([client.py](tally_erpnext/tally/client.py))
 - Frappe-compatible wrapper around `tally-integration` PyPI package
 - Methods: Connection testing, ledgers, items, vouchers, groups
 - Error handling and logging
 - Settings integration
 
-#### API Endpoints ([api.py](tally_integration/tally/api.py))
+#### API Endpoints ([api.py](tally_erpnext/tally/api.py))
 - Whitelisted methods for frontend/API access
 - CRUD operations for all entities
 - Sync endpoints
 
-#### Utilities ([utils.py](tally_integration/tally/utils.py))
+#### Utilities ([utils.py](tally_erpnext/tally/utils.py))
 - Helper functions for data mapping
 - Basic sync functions (legacy support)
 - Validation functions
@@ -95,7 +95,7 @@ A comprehensive **DocType-based Tally Integration** system that enables **bidire
 
 ---
 
-### 3. Synchronization Engine ([doctype_sync.py](tally_integration/tally/doctype_sync.py))
+### 3. Synchronization Engine ([doctype_sync.py](tally_erpnext/tally/doctype_sync.py))
 
 #### Functions Provided
 
@@ -219,8 +219,8 @@ Create Tally Sync Log
 ## 📂 File Structure
 
 ```
-frappe-bench/apps/tally_integration/
-├── tally_integration/
+frappe-bench/apps/tally_erpnext/
+├── tally_erpnext/
 │   ├── tally/
 │   │   ├── client.py                 # TallyClient wrapper
 │   │   ├── api.py                    # API endpoints
@@ -307,7 +307,7 @@ See [QUICK_START_DOCTYPE.md](QUICK_START_DOCTYPE.md)
 
 1. Read [DOCTYPE_ARCHITECTURE.md](DOCTYPE_ARCHITECTURE.md)
 2. Review [server_scripts_examples.md](examples/server_scripts_examples.md)
-3. Customize [doctype_sync.py](tally_integration/tally/doctype_sync.py)
+3. Customize [doctype_sync.py](tally_erpnext/tally/doctype_sync.py)
 4. Extend DocTypes as needed
 
 ---
@@ -375,7 +375,7 @@ Add to `hooks.py`:
 scheduler_events = {
     "cron": {
         "0 */4 * * *": [  # Every 4 hours
-            "tally_integration.tally.tasks.sync_transactions"
+            "tally_erpnext.tally.tasks.sync_transactions"
         ]
     }
 }

@@ -1,4 +1,4 @@
-app_name = "tally_integration"
+app_name = "tally_erpnext"
 app_title = "Tally"
 app_publisher = "SVNIX Solutions"
 app_description = "Tally Integration for ERPNext"
@@ -13,11 +13,11 @@ app_license = "gpl-3.0"
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
 # 	{
-# 		"name": "tally_integration",
-# 		"logo": "/assets/tally_integration/logo.png",
+# 		"name": "tally_erpnext",
+# 		"logo": "/assets/tally_erpnext/logo.png",
 # 		"title": "Tally",
-# 		"route": "/tally_integration",
-# 		"has_permission": "tally_integration.api.permission.has_app_permission"
+# 		"route": "/tally_erpnext",
+# 		"has_permission": "tally_erpnext.api.permission.has_app_permission"
 # 	}
 # ]
 
@@ -25,15 +25,15 @@ app_license = "gpl-3.0"
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/tally_integration/css/tally_integration.css"
-# app_include_js = "/assets/tally_integration/js/tally_integration.js"
+# app_include_css = "/assets/tally_erpnext/css/tally_erpnext.css"
+# app_include_js = "/assets/tally_erpnext/js/tally_erpnext.js"
 
 # include js, css files in header of web template
-# web_include_css = "/assets/tally_integration/css/tally_integration.css"
-# web_include_js = "/assets/tally_integration/js/tally_integration.js"
+# web_include_css = "/assets/tally_erpnext/css/tally_erpnext.css"
+# web_include_js = "/assets/tally_erpnext/js/tally_erpnext.js"
 
 # include custom scss in every website theme (without file extension ".scss")
-# website_theme_scss = "tally_integration/public/scss/website"
+# website_theme_scss = "tally_erpnext/public/scss/website"
 
 # include js, css files in header of web form
 # webform_include_js = {"doctype": "public/js/doctype.js"}
@@ -51,7 +51,7 @@ app_license = "gpl-3.0"
 # Svg Icons
 # ------------------
 # include app icons in desk
-# app_include_icons = "tally_integration/public/icons.svg"
+# app_include_icons = "tally_erpnext/public/icons.svg"
 
 # Home Pages
 # ----------
@@ -75,43 +75,43 @@ app_license = "gpl-3.0"
 
 # add methods and filters to jinja environment
 # jinja = {
-# 	"methods": "tally_integration.utils.jinja_methods",
-# 	"filters": "tally_integration.utils.jinja_filters"
+# 	"methods": "tally_erpnext.utils.jinja_methods",
+# 	"filters": "tally_erpnext.utils.jinja_filters"
 # }
 
 # Installation
 # ------------
 
-# before_install = "tally_integration.install.before_install"
-# after_install = "tally_integration.install.after_install"
+# before_install = "tally_erpnext.install.before_install"
+# after_install = "tally_erpnext.install.after_install"
 
 # Uninstallation
 # ------------
 
-# before_uninstall = "tally_integration.uninstall.before_uninstall"
-# after_uninstall = "tally_integration.uninstall.after_uninstall"
+# before_uninstall = "tally_erpnext.uninstall.before_uninstall"
+# after_uninstall = "tally_erpnext.uninstall.after_uninstall"
 
 # Integration Setup
 # ------------------
 # To set up dependencies/integrations with other apps
 # Name of the app being installed is passed as an argument
 
-# before_app_install = "tally_integration.utils.before_app_install"
-# after_app_install = "tally_integration.utils.after_app_install"
+# before_app_install = "tally_erpnext.utils.before_app_install"
+# after_app_install = "tally_erpnext.utils.after_app_install"
 
 # Integration Cleanup
 # -------------------
 # To clean up dependencies/integrations with other apps
 # Name of the app being uninstalled is passed as an argument
 
-# before_app_uninstall = "tally_integration.utils.before_app_uninstall"
-# after_app_uninstall = "tally_integration.utils.after_app_uninstall"
+# before_app_uninstall = "tally_erpnext.utils.before_app_uninstall"
+# after_app_uninstall = "tally_erpnext.utils.after_app_uninstall"
 
 # Desk Notifications
 # ------------------
 # See frappe.core.notifications.get_notification_config
 
-# notification_config = "tally_integration.notifications.get_notification_config"
+# notification_config = "tally_erpnext.notifications.get_notification_config"
 
 # Permissions
 # -----------
@@ -150,39 +150,39 @@ app_license = "gpl-3.0"
 
 # scheduler_events = {
 # 	"all": [
-# 		"tally_integration.tasks.all"
+# 		"tally_erpnext.tasks.all"
 # 	],
 # 	"daily": [
-# 		"tally_integration.tasks.daily"
+# 		"tally_erpnext.tasks.daily"
 # 	],
 # 	"hourly": [
-# 		"tally_integration.tasks.hourly"
+# 		"tally_erpnext.tasks.hourly"
 # 	],
 # 	"weekly": [
-# 		"tally_integration.tasks.weekly"
+# 		"tally_erpnext.tasks.weekly"
 # 	],
 # 	"monthly": [
-# 		"tally_integration.tasks.monthly"
+# 		"tally_erpnext.tasks.monthly"
 # 	],
 # }
 
 # Testing
 # -------
 
-# before_tests = "tally_integration.install.before_tests"
+# before_tests = "tally_erpnext.install.before_tests"
 
 # Overriding Methods
 # ------------------------------
 #
 # override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "tally_integration.event.get_events"
+# 	"frappe.desk.doctype.event.event.get_events": "tally_erpnext.event.get_events"
 # }
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
 # override_doctype_dashboards = {
-# 	"Task": "tally_integration.task.get_dashboard_data"
+# 	"Task": "tally_erpnext.task.get_dashboard_data"
 # }
 
 # exempt linked doctypes from being automatically cancelled
@@ -196,13 +196,13 @@ app_license = "gpl-3.0"
 
 # Request Events
 # ----------------
-# before_request = ["tally_integration.utils.before_request"]
-# after_request = ["tally_integration.utils.after_request"]
+# before_request = ["tally_erpnext.utils.before_request"]
+# after_request = ["tally_erpnext.utils.after_request"]
 
 # Job Events
 # ----------
-# before_job = ["tally_integration.utils.before_job"]
-# after_job = ["tally_integration.utils.after_job"]
+# before_job = ["tally_erpnext.utils.before_job"]
+# after_job = ["tally_erpnext.utils.after_job"]
 
 # User Data Protection
 # --------------------
@@ -232,7 +232,7 @@ app_license = "gpl-3.0"
 # --------------------------------
 
 # auth_hooks = [
-# 	"tally_integration.auth.validate"
+# 	"tally_erpnext.auth.validate"
 # ]
 
 # Automatically update python controller files with type annotations for this app.
