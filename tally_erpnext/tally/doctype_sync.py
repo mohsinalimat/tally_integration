@@ -74,13 +74,18 @@ def sync_ledgers_from_tally(company=None, parent_group=None):
 	Returns:
 		dict: Sync statistics
 	"""
+	frappe.logger("tally_sync").info(f"[{now()}] sync_ledgers_from_tally started - company: {company}, parent_group: {parent_group}")
+
 	created = 0
 	updated = 0
 	failed = 0
 
 	try:
+		frappe.logger("tally_sync").info(f"[{now()}] Initializing TallyClient...")
 		client = TallyClient()
+		frappe.logger("tally_sync").info(f"[{now()}] TallyClient initialized, fetching ledgers...")
 		ledgers = client.get_ledgers(company=company)
+		frappe.logger("tally_sync").info(f"[{now()}] Fetched {len(ledgers) if ledgers else 0} ledgers from Tally")
 
 		if parent_group:
 			ledgers = [l for l in ledgers if l.get("parent") == parent_group]
@@ -160,9 +165,11 @@ def sync_ledgers_from_tally(company=None, parent_group=None):
 		frappe.db.commit()
 
 	except Exception as e:
+		frappe.logger("tally_sync").error(f"[{now()}] Ledger sync failed with error: {str(e)}")
 		frappe.log_error(message=str(e), title=_("Ledger Sync Failed"))
 		raise
 
+	frappe.logger("tally_sync").info(f"[{now()}] sync_ledgers_from_tally completed - created: {created}, updated: {updated}, failed: {failed}")
 	return {"created": created, "updated": updated, "failed": failed, "total": created + updated + failed}
 
 
@@ -242,13 +249,18 @@ def sync_stock_items_from_tally(company=None):
 	Returns:
 		dict: Sync statistics
 	"""
+	frappe.logger("tally_sync").info(f"[{now()}] sync_stock_items_from_tally started - company: {company}")
+
 	created = 0
 	updated = 0
 	failed = 0
 
 	try:
+		frappe.logger("tally_sync").info(f"[{now()}] Initializing TallyClient...")
 		client = TallyClient()
+		frappe.logger("tally_sync").info(f"[{now()}] TallyClient initialized, fetching stock items...")
 		items = client.get_stock_items(company=company)
+		frappe.logger("tally_sync").info(f"[{now()}] Fetched {len(items) if items else 0} stock items from Tally")
 
 		for item_data in items:
 			try:
@@ -322,9 +334,11 @@ def sync_stock_items_from_tally(company=None):
 		frappe.db.commit()
 
 	except Exception as e:
+		frappe.logger("tally_sync").error(f"[{now()}] Stock items sync failed with error: {str(e)}")
 		frappe.log_error(message=str(e), title=_("Item Sync Failed"))
 		raise
 
+	frappe.logger("tally_sync").info(f"[{now()}] sync_stock_items_from_tally completed - created: {created}, updated: {updated}, failed: {failed}")
 	return {"created": created, "updated": updated, "failed": failed, "total": created + updated + failed}
 
 
@@ -403,17 +417,22 @@ def sync_vouchers_from_tally(voucher_type=None, from_date=None, to_date=None):
 	Returns:
 		dict: Sync statistics
 	"""
+	frappe.logger("tally_sync").info(f"[{now()}] sync_vouchers_from_tally started - voucher_type: {voucher_type}, from_date: {from_date}, to_date: {to_date}")
+
 	created = 0
 	updated = 0
 	failed = 0
 
 	try:
+		frappe.logger("tally_sync").info(f"[{now()}] Initializing TallyClient...")
 		client = TallyClient()
+		frappe.logger("tally_sync").info(f"[{now()}] TallyClient initialized, fetching vouchers...")
 		vouchers = client.get_vouchers(
 			voucher_type=voucher_type,
 			from_date=from_date,
 			to_date=to_date
 		)
+		frappe.logger("tally_sync").info(f"[{now()}] Fetched {len(vouchers) if vouchers else 0} vouchers from Tally")
 
 		for voucher_data in vouchers:
 			try:
@@ -497,9 +516,11 @@ def sync_vouchers_from_tally(voucher_type=None, from_date=None, to_date=None):
 		frappe.db.commit()
 
 	except Exception as e:
+		frappe.logger("tally_sync").error(f"[{now()}] Voucher sync failed with error: {str(e)}")
 		frappe.log_error(message=str(e), title=_("Voucher Sync Failed"))
 		raise
 
+	frappe.logger("tally_sync").info(f"[{now()}] sync_vouchers_from_tally completed - created: {created}, updated: {updated}, failed: {failed}")
 	return {"created": created, "updated": updated, "failed": failed, "total": created + updated + failed}
 
 
