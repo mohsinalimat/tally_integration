@@ -15,13 +15,14 @@ class TallyClient:
 	Wrapper class for TallyClient that integrates with Frappe's settings and error handling.
 	"""
 
-	def __init__(self, host=None, port=None):
+	def __init__(self, host=None, port=None, timeout=30):
 		"""
 		Initialize Tally Client with settings from Frappe
 
 		Args:
 			host: Tally server host (defaults to settings or localhost)
 			port: Tally server port (defaults to settings or 9000)
+			timeout: Request timeout in seconds (defaults to 30)
 		"""
 		# Get settings from Tally Settings doctype if not provided
 		if not host or not port:
@@ -29,8 +30,14 @@ class TallyClient:
 			host = host or settings.get("host", "localhost")
 			port = port or settings.get("port", 9000)
 
+		# Format host as URL if not already
+		if not host.startswith("http"):
+			tally_url = f"http://{host}"
+		else:
+			tally_url = host
+
 		try:
-			self.client = BaseTallyClient(host=host, port=port)
+			self.client = BaseTallyClient(tally_url=tally_url, tally_port=int(port), timeout=timeout)
 		except Exception as e:
 			frappe.throw(_("Failed to initialize Tally Client: {0}").format(str(e)))
 
