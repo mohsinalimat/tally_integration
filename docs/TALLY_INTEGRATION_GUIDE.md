@@ -12,7 +12,7 @@ The Tally Integration app connects ERPNext with TallyPrime/Tally.ERP 9 using the
 
 ```bash
 cd frappe-bench
-bench get-app https://github.com/your-repo/tally_erpnext --branch develop
+bench get-app https://github.com/svnix-solutions/tally_erpnext --branch develop
 bench install-app tally_erpnext
 ```
 

@@ -25,7 +25,7 @@ A comprehensive integration app that connects ERPNext with TallyPrime/Tally.ERP 
 
 ```bash
 cd $PATH_TO_YOUR_BENCH
-bench get-app $URL_OF_THIS_REPO --branch develop
+bench get-app https://github.com/svnix-solutions/tally_erpnext --branch develop
 bench install-app tally_erpnext
 ```
 

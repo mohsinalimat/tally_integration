@@ -35,7 +35,7 @@ If you see XML output, the API is working correctly.
 cd /path/to/frappe-bench
 
 # Get the app
-bench get-app https://github.com/your-org/tally_erpnext --branch develop
+bench get-app https://github.com/svnix-solutions/tally_erpnext --branch develop
 
 # Install the app on your site
 bench --site your-site-name install-app tally_erpnext
@@ -57,7 +57,7 @@ bench restart
 cd /path/to/frappe-bench/apps
 
 # Clone the repository
-git clone https://github.com/your-org/tally_erpnext
+git clone https://github.com/svnix-solutions/tally_erpnext
 cd tally_erpnext
 
 # Install in development mode

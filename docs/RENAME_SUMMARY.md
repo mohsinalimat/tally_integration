@@ -197,7 +197,7 @@ The package is now fully renamed and ready to use with the new name `tally_erpne
 
 **Install Command:**
 ```bash
-bench get-app https://github.com/your-org/tally_integration --branch develop
+bench get-app https://github.com/svnix-solutions/tally_erpnext --branch develop
 bench install-app tally_erpnext
 ```
 
