@@ -1158,7 +1158,10 @@ class TallyClient:
                 frappe.logger("tally").error(f"XML response is an error: {xml_response}")
                 return xml_response  # Return the error string as-is
 
-            root = ET.fromstring(xml_response)
+            # Use a recovering parser to ignore invalid XML characters
+            # This handles cases where Tally returns XML with control characters
+            parser = ET.XMLParser(recover=True)
+            root = ET.fromstring(xml_response.encode('utf-8'), parser=parser)
 
             # Convert XML tree to nested dictionary
             def xml_to_dict(element):
