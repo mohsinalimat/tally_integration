@@ -28,13 +28,27 @@ class TallyClient:
             str: XML response from Tally
         """
         try:
+            # Log the request
+            frappe.logger("tally").info(f"Tally Request to {self.endpoint}:")
+            frappe.logger("tally").info(f"Request XML:\n{xml_request}")
+
             response = requests.post(self.endpoint, data=xml_request, timeout=self.timeout)
+
+            # Log the response
+            frappe.logger("tally").info(f"Tally Response Status: {response.status_code}")
+            frappe.logger("tally").info(f"Response XML:\n{response.text[:1000]}...")  # Log first 1000 chars
+
             if response.status_code == 200:
                 return response.text
             else:
-                return f"Error: HTTP {response.status_code}"
+                error_msg = f"Error: HTTP {response.status_code}"
+                frappe.logger("tally").error(error_msg)
+                return error_msg
         except Exception as e:
-            return f"Error: {str(e)}"
+            error_msg = f"Error: {str(e)}"
+            frappe.logger("tally").error(f"Tally Request Exception: {error_msg}")
+            frappe.logger("tally").error(f"Request was:\n{xml_request}")
+            return error_msg
     
     def test_connection(self):
         """
@@ -1126,27 +1140,74 @@ class TallyClient:
     def parse_xml_response(self, xml_response):
         """
         Parse XML response from Tally
-        
+
         Args:
             xml_response (str): XML response string
-            
+
         Returns:
             dict: Parsed XML response as dictionary
         """
         try:
+            # Log what we're trying to parse
+            frappe.logger("tally").info("Parsing XML response...")
+            frappe.logger("tally").debug(f"XML to parse (first 500 chars):\n{xml_response[:500]}")
+
+            # Check if response is an error string
+            if isinstance(xml_response, str) and xml_response.startswith("Error:"):
+                frappe.logger("tally").error(f"XML response is an error: {xml_response}")
+                return xml_response  # Return the error string as-is
+
             root = ET.fromstring(xml_response)
-            # Implement parsing logic based on specific requirements
-            # This is a simple example that will need customization based on the actual XML structure
-            result = {}
-            
-            # Very basic parsing - extract all text content
-            for elem in root.iter():
-                if elem.text and elem.text.strip():
-                    result[elem.tag] = elem.text.strip()
-                    
-            return result
+
+            # Convert XML tree to nested dictionary
+            def xml_to_dict(element):
+                """Recursively convert XML element to dictionary"""
+                result = {}
+
+                # Add attributes
+                if element.attrib:
+                    for key, value in element.attrib.items():
+                        result[f"@{key}"] = value
+
+                # Process children
+                children = list(element)
+                if children:
+                    child_dict = {}
+                    for child in children:
+                        child_data = xml_to_dict(child)
+                        if child.tag in child_dict:
+                            # If tag already exists, convert to list
+                            if not isinstance(child_dict[child.tag], list):
+                                child_dict[child.tag] = [child_dict[child.tag]]
+                            child_dict[child.tag].append(child_data)
+                        else:
+                            child_dict[child.tag] = child_data
+                    result.update(child_dict)
+
+                # Add text content
+                if element.text and element.text.strip():
+                    if result:  # If we have children or attributes
+                        result['_text'] = element.text.strip()
+                    else:  # If only text content
+                        return element.text.strip()
+
+                return result if result else None
+
+            parsed = {root.tag: xml_to_dict(root)}
+
+            frappe.logger("tally").info(f"Successfully parsed XML response. Root tag: {root.tag}")
+            frappe.logger("tally").debug(f"Parsed result keys: {list(parsed.keys())}")
+
+            return parsed
+        except ET.ParseError as e:
+            error_msg = f"XML Parse Error: {str(e)}"
+            frappe.logger("tally").error(error_msg)
+            frappe.logger("tally").error(f"Failed XML content:\n{xml_response[:500]}")
+            return error_msg
         except Exception as e:
-            return {"error": str(e)}
+            error_msg = f"Parse Exception: {str(e)}"
+            frappe.logger("tally").error(error_msg)
+            return {"error": error_msg}
 
     # -------------------- Company Management --------------------
     
