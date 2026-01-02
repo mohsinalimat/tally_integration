@@ -297,8 +297,15 @@ def sync_stock_items_from_tally(company=None):
 				item.opening_rate = item_data.get("opening_rate", 0)
 				item.opening_value = item_data.get("opening_value", 0)
 				item.current_balance = item_data.get("current_balance", 0)
+				item.current_rate = item_data.get("current_rate", 0)
+				item.current_value = item_data.get("current_value", 0)
 				item.hsn_code = item_data.get("hsn_code")
+
+				# Handle GST fields
+				gst_applicable = item_data.get("gst_applicable", "No")
+				item.gst_applicable = 1 if gst_applicable and str(gst_applicable).lower() in ["yes", "true", "1"] else 0
 				item.gst_rate = item_data.get("gst_rate")
+
 				item.last_sync_date = now()
 				item.sync_status = "Synced"
 				item.additional_data = json.dumps(item_data, indent=2, cls=DateTimeEncoder)

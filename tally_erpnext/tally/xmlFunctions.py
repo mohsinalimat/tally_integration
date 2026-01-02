@@ -212,10 +212,10 @@ class TallyClient:
     
     def get_stock_items_list(self):
         """
-        Get list of stock items from Tally
-        
+        Get list of stock items from Tally with detailed information
+
         Returns:
-            str: XML response with stock items list
+            str: XML response with stock items list including opening balance, rate, and value
         """
         xml_request = """<ENVELOPE>
     <HEADER>
@@ -226,20 +226,35 @@ class TallyClient:
     </HEADER>
     <BODY>
         <DESC>
-            <STATICVARIABLES />
+            <STATICVARIABLES>
+                <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+            </STATICVARIABLES>
             <TDL>
                 <TDLMESSAGE>
                     <COLLECTION ISMODIFY="No" ISFIXED="No" ISINITIALIZE="Yes" ISOPTION="No" ISINTERNAL="No" NAME="Custom List of StockItems">
                         <TYPE>StockItem</TYPE>
-                        <NATIVEMETHOD>MasterID</NATIVEMETHOD>
-                        <NATIVEMETHOD>GUID</NATIVEMETHOD>
+                        <FETCH>NAME</FETCH>
+                        <FETCH>PARENT</FETCH>
+                        <FETCH>ALIAS</FETCH>
+                        <FETCH>GUID</FETCH>
+                        <FETCH>MASTERID</FETCH>
+                        <FETCH>BASEUNITS</FETCH>
+                        <FETCH>OPENINGBALANCE</FETCH>
+                        <FETCH>OPENINGRATE</FETCH>
+                        <FETCH>OPENINGVALUE</FETCH>
+                        <FETCH>CLOSINGBALANCE</FETCH>
+                        <FETCH>CLOSINGRATE</FETCH>
+                        <FETCH>CLOSINGVALUE</FETCH>
+                        <FETCH>HSNCODE</FETCH>
+                        <FETCH>GSTAPPLICABLE</FETCH>
+                        <FETCH>TAXCLASSIFICATIONNAME</FETCH>
                     </COLLECTION>
                 </TDLMESSAGE>
             </TDL>
         </DESC>
     </BODY>
 </ENVELOPE>"""
-        
+
         return self._send_request(xml_request)
     
     def get_vouchers_by_type(self, company_name, from_date, to_date, voucher_type="Attendance"):

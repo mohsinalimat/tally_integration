@@ -259,12 +259,20 @@ class TallyClient:
 			for item in item_data:
 				stock_items.append({
 					"name": self._extract_value(item.get("NAME", item.get("@NAME", ""))),
+					"alias": self._extract_value(item.get("ALIAS", "")),
 					"guid": self._extract_value(item.get("GUID", "")),
 					"master_id": self._extract_value(item.get("MASTERID", "")),
 					"parent": self._extract_value(item.get("PARENT", "")),
 					"base_units": self._extract_value(item.get("BASEUNITS", "")),
 					"opening_balance": self._extract_value(item.get("OPENINGBALANCE", 0)),
+					"opening_rate": self._extract_value(item.get("OPENINGRATE", 0)),
 					"opening_value": self._extract_value(item.get("OPENINGVALUE", 0)),
+					"current_balance": self._extract_value(item.get("CLOSINGBALANCE", 0)),
+					"current_rate": self._extract_value(item.get("CLOSINGRATE", 0)),
+					"current_value": self._extract_value(item.get("CLOSINGVALUE", 0)),
+					"hsn_code": self._extract_value(item.get("HSNCODE", "")),
+					"gst_applicable": self._extract_value(item.get("GSTAPPLICABLE", "No")),
+					"gst_rate": self._extract_value(item.get("TAXCLASSIFICATIONNAME", "")),
 				})
 
 			return stock_items
