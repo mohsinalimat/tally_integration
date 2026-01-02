@@ -62,6 +62,43 @@ class TallyClient:
 
 		return {"host": "localhost", "port": 9000, "enabled": False}
 
+	@staticmethod
+	def _extract_value(value, default=""):
+		"""
+		Extract scalar value from potentially nested dictionary structure.
+
+		When XML elements have both text content and child elements/attributes,
+		the parser returns a dict with '_text' key. This helper extracts the
+		actual text value.
+
+		Args:
+			value: Value to extract (can be str, int, float, dict, or None)
+			default: Default value if extraction fails
+
+		Returns:
+			Scalar value (str, int, float) or default
+		"""
+		if value is None:
+			return default
+
+		# If it's already a scalar value, return as-is
+		if isinstance(value, (str, int, float, bool)):
+			return value
+
+		# If it's a dict, try to extract _text key
+		if isinstance(value, dict):
+			# Try _text key first (text content with child elements)
+			if '_text' in value:
+				return value['_text']
+			# If no _text, might be empty element
+			return default
+
+		# For any other type, convert to string or return default
+		try:
+			return str(value)
+		except Exception:
+			return default
+
 	def test_connection(self):
 		"""
 		Test connection to Tally server
@@ -142,16 +179,16 @@ class TallyClient:
 
 			for ledger in ledger_data:
 				ledgers.append({
-					"name": ledger.get("NAME", ledger.get("@NAME", "")),
-					"parent": ledger.get("PARENT", ""),
-					"guid": ledger.get("GUID", ""),
-					"opening_balance": ledger.get("OPENINGBALANCE", 0),
-					"closing_balance": ledger.get("CLOSINGBALANCE", 0),
-					"address": ledger.get("ADDRESS", ""),
-					"mobile": ledger.get("LEDGERPHONE", ledger.get("MOBILE", "")),
-					"email": ledger.get("EMAIL", ""),
-					"gstin": ledger.get("PARTYGSTIN", ledger.get("GSTIN", "")),
-					"pan": ledger.get("INCOMETAXNUMBER", ledger.get("PAN", "")),
+					"name": self._extract_value(ledger.get("NAME", ledger.get("@NAME", ""))),
+					"parent": self._extract_value(ledger.get("PARENT", "")),
+					"guid": self._extract_value(ledger.get("GUID", "")),
+					"opening_balance": self._extract_value(ledger.get("OPENINGBALANCE", 0)),
+					"closing_balance": self._extract_value(ledger.get("CLOSINGBALANCE", 0)),
+					"address": self._extract_value(ledger.get("ADDRESS", "")),
+					"mobile": self._extract_value(ledger.get("LEDGERPHONE", ledger.get("MOBILE", ""))),
+					"email": self._extract_value(ledger.get("EMAIL", "")),
+					"gstin": self._extract_value(ledger.get("PARTYGSTIN", ledger.get("GSTIN", ""))),
+					"pan": self._extract_value(ledger.get("INCOMETAXNUMBER", ledger.get("PAN", ""))),
 				})
 
 			return ledgers
@@ -221,13 +258,13 @@ class TallyClient:
 
 			for item in item_data:
 				stock_items.append({
-					"name": item.get("NAME", item.get("@NAME", "")),
-					"guid": item.get("GUID", ""),
-					"master_id": item.get("MASTERID", ""),
-					"parent": item.get("PARENT", ""),
-					"base_units": item.get("BASEUNITS", ""),
-					"opening_balance": item.get("OPENINGBALANCE", 0),
-					"opening_value": item.get("OPENINGVALUE", 0),
+					"name": self._extract_value(item.get("NAME", item.get("@NAME", ""))),
+					"guid": self._extract_value(item.get("GUID", "")),
+					"master_id": self._extract_value(item.get("MASTERID", "")),
+					"parent": self._extract_value(item.get("PARENT", "")),
+					"base_units": self._extract_value(item.get("BASEUNITS", "")),
+					"opening_balance": self._extract_value(item.get("OPENINGBALANCE", 0)),
+					"opening_value": self._extract_value(item.get("OPENINGVALUE", 0)),
 				})
 
 			return stock_items
@@ -318,12 +355,12 @@ class TallyClient:
 
 		for voucher in voucher_data:
 			vouchers.append({
-				"voucher_number": voucher.get("VOUCHERNUMBER", ""),
-				"voucher_type": voucher.get("VOUCHERTYPENAME", ""),
-				"date": voucher.get("DATE", ""),
-				"master_id": voucher.get("MASTERID", ""),
-				"narration": voucher.get("NARRATION", ""),
-				"party_name": voucher.get("PARTYLEDGERNAME", ""),
+				"voucher_number": self._extract_value(voucher.get("VOUCHERNUMBER", "")),
+				"voucher_type": self._extract_value(voucher.get("VOUCHERTYPENAME", "")),
+				"date": self._extract_value(voucher.get("DATE", "")),
+				"master_id": self._extract_value(voucher.get("MASTERID", "")),
+				"narration": self._extract_value(voucher.get("NARRATION", "")),
+				"party_name": self._extract_value(voucher.get("PARTYLEDGERNAME", "")),
 			})
 
 		return vouchers
@@ -413,9 +450,9 @@ class TallyClient:
 
 			for group in group_data:
 				groups.append({
-					"name": group.get("NAME", group.get("@NAME", "")),
-					"parent": group.get("PARENT", ""),
-					"master_id": group.get("MASTERID", ""),
+					"name": self._extract_value(group.get("NAME", group.get("@NAME", ""))),
+					"parent": self._extract_value(group.get("PARENT", "")),
+					"master_id": self._extract_value(group.get("MASTERID", "")),
 				})
 
 			return groups
