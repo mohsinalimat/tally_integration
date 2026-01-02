@@ -122,6 +122,10 @@ class TallyClient:
 			xml_response = self.client.get_ledgers_list(company_name=company)
 			parsed = self.client.parse_xml_response(xml_response)
 
+			# Check if parsed response is valid
+			if not isinstance(parsed, dict):
+				frappe.throw(_("Invalid response from Tally: {0}").format(str(parsed)))
+
 			# Extract ledgers from parsed response - structure may vary
 			# Try different possible paths in the XML structure
 			ledgers = []
@@ -194,6 +198,14 @@ class TallyClient:
 		try:
 			xml_response = self.client.get_stock_items_list()
 			parsed = self.client.parse_xml_response(xml_response)
+
+			# Check if parsed response is valid
+			if not isinstance(parsed, dict):
+				frappe.log_error(
+					message=f"Invalid response from Tally: {parsed}",
+					title=_("Failed to get stock items")
+				)
+				return []
 
 			# Extract stock items from parsed response
 			stock_items = []
@@ -378,6 +390,14 @@ class TallyClient:
 		try:
 			xml_response = self.client.get_groups_list(company_name=company_name)
 			parsed = self.client.parse_xml_response(xml_response)
+
+			# Check if parsed response is valid
+			if not isinstance(parsed, dict):
+				frappe.log_error(
+					message=f"Invalid response from Tally: {parsed}",
+					title=_("Failed to get groups")
+				)
+				return []
 
 			# Extract groups from parsed response
 			groups = []
