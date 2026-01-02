@@ -34,15 +34,16 @@ class TallyClient:
 
             response = requests.post(self.endpoint, data=xml_request, timeout=self.timeout)
 
-            # Log the response
+            # Log the response - FULL response since it's going to file
             frappe.logger("tally").info(f"Tally Response Status: {response.status_code}")
-            frappe.logger("tally").info(f"Response XML:\n{response.text[:1000]}...")  # Log first 1000 chars
+            frappe.logger("tally").info(f"Response XML (FULL):\n{response.text}")
 
             if response.status_code == 200:
                 return response.text
             else:
                 error_msg = f"Error: HTTP {response.status_code}"
                 frappe.logger("tally").error(error_msg)
+                frappe.logger("tally").error(f"Response Body:\n{response.text}")
                 return error_msg
         except Exception as e:
             error_msg = f"Error: {str(e)}"
@@ -1148,9 +1149,9 @@ class TallyClient:
             dict: Parsed XML response as dictionary
         """
         try:
-            # Log what we're trying to parse
+            # Log what we're trying to parse - FULL XML since it's going to file
             frappe.logger("tally").info("Parsing XML response...")
-            frappe.logger("tally").debug(f"XML to parse (first 500 chars):\n{xml_response[:500]}")
+            frappe.logger("tally").debug(f"XML to parse (FULL):\n{xml_response}")
 
             # Check if response is an error string
             if isinstance(xml_response, str) and xml_response.startswith("Error:"):
@@ -1202,11 +1203,12 @@ class TallyClient:
         except ET.ParseError as e:
             error_msg = f"XML Parse Error: {str(e)}"
             frappe.logger("tally").error(error_msg)
-            frappe.logger("tally").error(f"Failed XML content:\n{xml_response[:500]}")
+            frappe.logger("tally").error(f"Failed XML content (FULL):\n{xml_response}")
             return error_msg
         except Exception as e:
             error_msg = f"Parse Exception: {str(e)}"
             frappe.logger("tally").error(error_msg)
+            frappe.logger("tally").error(f"Failed XML content (FULL):\n{xml_response}")
             return {"error": error_msg}
 
     # -------------------- Company Management --------------------
