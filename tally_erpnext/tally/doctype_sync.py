@@ -10,7 +10,16 @@ from frappe import _
 from frappe.utils import now
 import json
 import traceback
+from datetime import datetime, date
 from tally_erpnext.tally.client import TallyClient
+
+
+class DateTimeEncoder(json.JSONEncoder):
+	"""Custom JSON encoder that handles datetime objects"""
+	def default(self, obj):
+		if isinstance(obj, (datetime, date)):
+			return obj.isoformat()
+		return super().default(obj)
 
 
 def create_sync_log(sync_type, operation, status, direction, entity_type, entity_name=None,
@@ -46,8 +55,8 @@ def create_sync_log(sync_type, operation, status, direction, entity_type, entity
 			"entity_name": entity_name,
 			"reference_doctype": reference_doctype,
 			"reference_name": reference_name,
-			"tally_data": json.dumps(tally_data, indent=2) if tally_data else None,
-			"erp_data": json.dumps(erp_data, indent=2) if erp_data else None,
+			"tally_data": json.dumps(tally_data, indent=2, cls=DateTimeEncoder) if tally_data else None,
+			"erp_data": json.dumps(erp_data, indent=2, cls=DateTimeEncoder) if erp_data else None,
 			"error_message": error_message,
 			"traceback": traceback.format_exc() if error_message else None,
 			"sync_date": now(),
