@@ -1,13 +1,13 @@
 """
 Tally Client Wrapper for Frappe/ERPNext Integration
 
-This module provides a Frappe-friendly wrapper around the tally-integration package,
+This module provides a Frappe-friendly wrapper around the TallyClient,
 handling connection management, error handling, and data transformation.
 """
 
 import frappe
 from frappe import _
-from tally_integration import TallyClient as BaseTallyClient, TallyConnectionError
+from tally_erpnext.tally.xmlFunctions import TallyClient as BaseTallyClient
 
 
 class TallyClient:
@@ -71,7 +71,7 @@ class TallyClient:
 		"""
 		try:
 			return self.client.test_connection()
-		except TallyConnectionError as e:
+		except Exception as e:
 			frappe.log_error(
 				message=str(e), title=_("Tally Connection Error")
 			)
@@ -185,97 +185,223 @@ class TallyClient:
 		"""
 		Get all stock items from Tally
 
-		NOTE: The tally-integration package (v1.0.0) does not support stock items.
-		This method returns an empty list. For stock item support, you need to:
-		1. Extend the package with custom XML requests, or
-		2. Wait for package updates with stock item support
-
 		Args:
 			company: Company name (optional)
 
 		Returns:
-			list: Empty list (not supported in current package version)
+			list: List of stock item dictionaries
 		"""
-		frappe.logger("tally_sync").warning(
-			"get_stock_items: Not supported in tally-integration v1.0.0. Returning empty list."
-		)
-		# Stock items not supported in tally-integration v1.0.0
-		return []
+		try:
+			xml_response = self.client.get_stock_items_list()
+			parsed = self.client.parse_xml_response(xml_response)
+
+			# Extract stock items from parsed response
+			stock_items = []
+			envelope = parsed.get("ENVELOPE", parsed)
+			body = envelope.get("BODY", envelope)
+			data = body.get("DATA", body)
+			collection = data.get("COLLECTION", data)
+
+			# Stock items might be under STOCKITEM key
+			item_data = collection.get("STOCKITEM", [])
+			if isinstance(item_data, dict):
+				item_data = [item_data]
+
+			for item in item_data:
+				stock_items.append({
+					"name": item.get("NAME", item.get("@NAME", "")),
+					"guid": item.get("GUID", ""),
+					"master_id": item.get("MASTERID", ""),
+					"parent": item.get("PARENT", ""),
+					"base_units": item.get("BASEUNITS", ""),
+					"opening_balance": item.get("OPENINGBALANCE", 0),
+					"opening_value": item.get("OPENINGVALUE", 0),
+				})
+
+			return stock_items
+		except Exception as e:
+			frappe.log_error(message=str(e), title=_("Failed to get stock items"))
+			return []
 
 	def create_stock_item(self, name, category, unit, **kwargs):
 		"""
 		Create a new stock item in Tally
 
-		NOTE: Not supported in tally-integration v1.0.0
-
 		Args:
 			name: Item name
-			category: Item category
+			category: Item category (not used, kept for compatibility)
 			unit: Unit of measurement
-			**kwargs: Additional item properties
+			**kwargs: Additional item properties (opening_balance, hsn_code, gst_rate)
 
 		Returns:
-			dict: Error response (not supported)
+			dict: Response from Tally
 		"""
-		frappe.throw(_("Stock item creation not supported in tally-integration v1.0.0"))
+		try:
+			opening_balance = kwargs.get('opening_balance', 0)
+			hsn_code = kwargs.get('hsn_code')
+			gst_rate = kwargs.get('gst_rate')
 
-	def get_vouchers(self, voucher_type=None, from_date=None, to_date=None):
+			xml_response = self.client.create_stock_item(
+				name=name,
+				base_unit=unit,
+				opening_balance=opening_balance,
+				hsn_code=hsn_code,
+				gst_rate=gst_rate
+			)
+			return self.client.parse_xml_response(xml_response)
+		except Exception as e:
+			frappe.throw(_("Failed to create stock item: {0}").format(str(e)))
+
+	def get_vouchers(self, voucher_type=None, from_date=None, to_date=None, company_name=None):
 		"""
 		Get vouchers from Tally
 
-		NOTE: The tally-integration package (v1.0.0) does not support vouchers.
-		This method returns an empty list. For voucher support, you need to:
-		1. Extend the package with custom XML requests, or
-		2. Wait for package updates with voucher support
-
 		Args:
 			voucher_type: Type of voucher (Sales, Purchase, etc.)
-			from_date: Start date (optional)
-			to_date: End date (optional)
+			from_date: Start date (format: YYYYMMDD or DD-MMM-YYYY)
+			to_date: End date (format: YYYYMMDD or DD-MMM-YYYY)
+			company_name: Company name (optional)
 
 		Returns:
-			list: Empty list (not supported in current package version)
+			list: List of voucher dictionaries
 		"""
-		frappe.logger("tally_sync").warning(
-			"get_vouchers: Not supported in tally-integration v1.0.0. Returning empty list."
-		)
-		# Vouchers not supported in tally-integration v1.0.0
-		return []
+		try:
+			if not company_name:
+				settings = self.get_tally_settings()
+				company_name = settings.get("default_company", "")
+
+			if not from_date or not to_date:
+				from datetime import datetime, timedelta
+				to_date = datetime.now().strftime("%Y%m%d")
+				from_date = (datetime.now() - timedelta(days=30)).strftime("%Y%m%d")
+
+			if voucher_type and from_date and to_date and company_name:
+				xml_response = self.client.get_vouchers_by_type(
+					company_name=company_name,
+					from_date=from_date,
+					to_date=to_date,
+					voucher_type=voucher_type
+				)
+			else:
+				# Use sales report as fallback
+				xml_response = self.client.get_sales_report()
+
+			parsed = self.client.parse_xml_response(xml_response)
+			return self._extract_vouchers(parsed)
+		except Exception as e:
+			frappe.log_error(message=str(e), title=_("Failed to get vouchers"))
+			return []
+
+	def _extract_vouchers(self, parsed_response):
+		"""Extract vouchers from parsed XML response"""
+		vouchers = []
+		envelope = parsed_response.get("ENVELOPE", parsed_response)
+		body = envelope.get("BODY", envelope)
+		data = body.get("DATA", body)
+
+		# Try different possible paths
+		voucher_data = data.get("VOUCHER", data.get("TALLYMESSAGE", {}).get("VOUCHER", []))
+		if isinstance(voucher_data, dict):
+			voucher_data = [voucher_data]
+
+		for voucher in voucher_data:
+			vouchers.append({
+				"voucher_number": voucher.get("VOUCHERNUMBER", ""),
+				"voucher_type": voucher.get("VOUCHERTYPENAME", ""),
+				"date": voucher.get("DATE", ""),
+				"master_id": voucher.get("MASTERID", ""),
+				"narration": voucher.get("NARRATION", ""),
+				"party_name": voucher.get("PARTYLEDGERNAME", ""),
+			})
+
+		return vouchers
 
 	def create_voucher(self, voucher_type, date, ledger_entries, narration=None, **kwargs):
 		"""
 		Create a voucher in Tally
 
-		NOTE: Not supported in tally-integration v1.0.0
-
 		Args:
 			voucher_type: Type of voucher (Sales, Purchase, Receipt, Payment, Journal)
-			date: Voucher date
-			ledger_entries: List of ledger entry dictionaries
+			date: Voucher date (format: YYYYMMDD)
+			ledger_entries: List of ledger entry dictionaries with keys:
+							- ledger_name (str)
+							- is_debit (bool)
+							- amount (float)
 			narration: Voucher narration (optional)
-			**kwargs: Additional voucher properties
+			**kwargs: Additional voucher properties (company_name, voucher_number)
 
 		Returns:
-			dict: Error response (not supported)
+			dict: Response from Tally
 		"""
-		frappe.throw(_("Voucher creation not supported in tally-integration v1.0.0"))
+		try:
+			company_name = kwargs.get('company_name')
+			voucher_number = kwargs.get('voucher_number')
 
-	def get_groups(self, group_type="Ledger"):
+			if voucher_type.lower() == 'journal':
+				xml_response = self.client.create_journal_voucher(
+					company_name=company_name,
+					entries=ledger_entries,
+					date=date,
+					voucher_number=voucher_number,
+					narration=narration or ""
+				)
+			elif voucher_type.lower() == 'receipt':
+				# For receipt vouchers, extract party and amount
+				party_ledger = next((e['ledger_name'] for e in ledger_entries if not e.get('is_debit')), None)
+				amount = next((e['amount'] for e in ledger_entries if not e.get('is_debit')), 0)
+
+				xml_response = self.client.create_receipt_voucher(
+					party_ledger_name=party_ledger,
+					amount=amount,
+					date=date,
+					narration=narration or "",
+					voucher_number=voucher_number
+				)
+			else:
+				frappe.throw(_("Voucher type {0} not yet supported").format(voucher_type))
+
+			return self.client.parse_xml_response(xml_response)
+		except Exception as e:
+			frappe.throw(_("Failed to create voucher: {0}").format(str(e)))
+
+	def get_groups(self, group_type="Ledger", company_name=None):
 		"""
 		Get groups from Tally
 
-		NOTE: Not supported in tally-integration v1.0.0
-
 		Args:
-			group_type: Type of group (Ledger, Stock, etc.)
+			group_type: Type of group (Ledger, Stock, etc.) - currently only Ledger is supported
+			company_name: Company name (optional)
 
 		Returns:
-			list: Empty list (not supported)
+			list: List of group dictionaries
 		"""
-		frappe.logger("tally_sync").warning(
-			"get_groups: Not supported in tally-integration v1.0.0. Returning empty list."
-		)
-		return []
+		try:
+			xml_response = self.client.get_groups_list(company_name=company_name)
+			parsed = self.client.parse_xml_response(xml_response)
+
+			# Extract groups from parsed response
+			groups = []
+			envelope = parsed.get("ENVELOPE", parsed)
+			body = envelope.get("BODY", envelope)
+			data = body.get("DATA", body)
+			collection = data.get("COLLECTION", data)
+
+			# Groups might be under GROUP key
+			group_data = collection.get("GROUP", [])
+			if isinstance(group_data, dict):
+				group_data = [group_data]
+
+			for group in group_data:
+				groups.append({
+					"name": group.get("NAME", group.get("@NAME", "")),
+					"parent": group.get("PARENT", ""),
+					"master_id": group.get("MASTERID", ""),
+				})
+
+			return groups
+		except Exception as e:
+			frappe.log_error(message=str(e), title=_("Failed to get groups"))
+			return []
 
 
 @frappe.whitelist()

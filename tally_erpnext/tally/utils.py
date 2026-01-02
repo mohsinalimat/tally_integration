@@ -123,8 +123,8 @@ def sync_items():
 				# Update existing item
 				item = frappe.get_doc("Item", {"item_name": item_name})
 				item.tally_item_name = item_name
-				if tally_item.get("unit"):
-					item.stock_uom = tally_item.get("unit")
+				if tally_item.get("base_units"):
+					item.stock_uom = tally_item.get("base_units")
 				item.save(ignore_permissions=True)
 				updated += 1
 			else:
@@ -133,8 +133,8 @@ def sync_items():
 					"doctype": "Item",
 					"item_code": item_name,
 					"item_name": item_name,
-					"item_group": tally_item.get("category", "Products"),
-					"stock_uom": tally_item.get("unit", "Nos"),
+					"item_group": tally_item.get("parent", "Products"),
+					"stock_uom": tally_item.get("base_units", "Nos"),
 					"tally_item_name": item_name,
 					"is_stock_item": 1
 				})
@@ -199,10 +199,19 @@ def push_sales_invoice(sales_invoice_name):
 			"is_debit": False
 		})
 
-	# Create voucher in Tally
+	# Create voucher in Tally (using Journal type as Sales is not yet supported)
+	# Convert date to YYYYMMDD format
+	from datetime import datetime
+	posting_date_str = si.posting_date
+	if isinstance(posting_date_str, str):
+		date_obj = datetime.strptime(posting_date_str, "%Y-%m-%d")
+		tally_date = date_obj.strftime("%Y%m%d")
+	else:
+		tally_date = posting_date_str.strftime("%Y%m%d")
+
 	response = client.create_voucher(
-		voucher_type="Sales",
-		date=si.posting_date,
+		voucher_type="Journal",  # Using Journal as Sales voucher not yet implemented
+		date=tally_date,
 		ledger_entries=ledger_entries,
 		narration=f"Sales Invoice {si.name} - {si.customer_name}"
 	)
@@ -253,7 +262,7 @@ def map_erpnext_item_to_tally_stock_item(item_code):
 	return {
 		"name": item.item_name,
 		"category": item.item_group,
-		"unit": item.stock_uom
+		"unit": item.stock_uom  # Will be mapped to base_unit in create_stock_item
 	}
 
 
