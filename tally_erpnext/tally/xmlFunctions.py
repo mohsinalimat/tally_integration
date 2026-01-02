@@ -1,14 +1,6 @@
 import requests
 import xml.etree.ElementTree as ET
-import logging
-import sys # For basic logging config
-
-# --- Logging Setup ---
-logging.basicConfig(
-    level=logging.INFO, 
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    stream=sys.stdout # Log to standard output
-)
+import frappe
 
 class TallyClient:
     def __init__(self, tally_url="http://localhost", tally_port=9000, timeout=30):
@@ -431,10 +423,10 @@ class TallyClient:
                 # Return raw byte content for PDF
                 return response.content
             else:
-                logging.error(f"Error fetching payslip: HTTP {response.status_code} - {response.text[:200]}...")
+                frappe.logger("tally").error(f"Error fetching payslip: HTTP {response.status_code} - {response.text[:200]}...")
                 return f"Error: HTTP {response.status_code}"
         except Exception as e:
-            logging.exception("Error occurred during get_payslip request.")
+            frappe.logger("tally").exception("Error occurred during get_payslip request.")
             return f"Error: {str(e)}"
     
     def get_sales_report_voucher_register(self, from_date, to_date, company_name, voucher_type="Sales"):
@@ -1861,7 +1853,7 @@ class TallyClient:
             None: Returns None if a significant error occurs.
         """
         tally_url = self.endpoint
-        logging.info("Attempting to list all companies via Collection export...")
+        frappe.logger("tally").info("Attempting to list all companies via Collection export...")
         headers = {'Content-Type': 'application/xml'}
         request_xml = """
         <ENVELOPE>
@@ -1887,10 +1879,10 @@ class TallyClient:
         try:
             response = requests.post(tally_url, data=request_xml.encode('utf-8'), headers=headers, timeout=20)
             response_xml = response.text
-            logging.debug(f"List Companies Raw Response:\n{response_xml}") # Log raw response at debug level
+            frappe.logger("tally").debug(f"List Companies Raw Response:\n{response_xml}") # Log raw response at debug level
 
             if not response_xml or not response_xml.strip().startswith('<ENVELOPE>'):
-                logging.warning(f"Received unexpected response format listing companies: {response_xml[:100]}...")
+                frappe.logger("tally").warning(f"Received unexpected response format listing companies: {response_xml[:100]}...")
                 return None
 
             companies = []
@@ -1902,9 +1894,9 @@ class TallyClient:
                     error_nodes = root.findall('.//BODY/DATA/LINEERROR')
                     if error_nodes:
                         errors = ", ".join([err.text.strip() for err in error_nodes if err.text])
-                        logging.error(f"Tally reported errors listing companies: {errors}")
+                        frappe.logger("tally").error(f"Tally reported errors listing companies: {errors}")
                     else:
-                        logging.error(f"Tally returned status {status} listing companies. Response: {response_xml[:200]}...")
+                        frappe.logger("tally").error(f"Tally returned status {status} listing companies. Response: {response_xml[:200]}...")
                     return None
 
                 # Expecting <COLLECTION><COMPANY><NAME>...</NAME></COMPANY>...</COLLECTION>
@@ -1918,31 +1910,31 @@ class TallyClient:
                         companies.append(name_element.text.strip())
 
                 companies = sorted(list(set(companies)))
-                logging.info(f"Successfully listed companies: {companies}")
+                frappe.logger("tally").info(f"Successfully listed companies: {companies}")
                 return companies
 
             except ET.ParseError as e:
-                logging.error(f"Error parsing Tally XML response for list companies: {e}")
-                logging.error(f"Received Content Snippet:\n{response_xml[:500]}...")
+                frappe.logger("tally").error(f"Error parsing Tally XML response for list companies: {e}")
+                frappe.logger("tally").error(f"Received Content Snippet:\n{response_xml[:500]}...")
                 return None
             except Exception as e:
-                logging.exception("Unexpected error during XML processing for list companies.") # Log full traceback
+                frappe.logger("tally").exception("Unexpected error during XML processing for list companies.") # Log full traceback
                 return None
 
         except requests.exceptions.ConnectionError:
-            logging.error(f"Connection refused. Is Tally running/configured on {tally_url}?")
+            frappe.logger("tally").error(f"Connection refused. Is Tally running/configured on {tally_url}?")
             return None
         except requests.exceptions.Timeout:
-            logging.error(f"Request timed out connecting to Tally on {tally_url}.")
+            frappe.logger("tally").error(f"Request timed out connecting to Tally on {tally_url}.")
             return None
         except requests.exceptions.RequestException as e:
             error_detail = ""
             if e.response is not None:
                 error_detail = f" HTTP Status: {e.response.status_code}. Response: {e.response.text[:200]}..."
-            logging.error(f"Request exception listing companies: {e}{error_detail}")
+            frappe.logger("tally").error(f"Request exception listing companies: {e}{error_detail}")
             return None
         except Exception as e:
-            logging.exception("Unexpected error occurred while listing companies.") # Log full traceback
+            frappe.logger("tally").exception("Unexpected error occurred while listing companies.") # Log full traceback
             return None
     def select_tally_company(self, company_name):
         """
@@ -1957,7 +1949,7 @@ class TallyClient:
             bool: True if the company was selected successfully (or assumed based on response), False otherwise.
         """
         tally_url = self.endpoint
-        logging.info(f"Attempting to select company: '{company_name}'")
+        frappe.logger("tally").info(f"Attempting to select company: '{company_name}'")
         headers = {'Content-Type': 'application/xml'}
         request_xml = f"""
         <ENVELOPE>
@@ -1981,15 +1973,15 @@ class TallyClient:
         try:
             response = requests.post(tally_url, data=request_xml.encode('utf-8'), headers=headers, timeout=25)
             response_xml = response.text
-            logging.debug(f"Select Company '{company_name}' Raw Response:\n{response_xml}") # Log raw response
+            frappe.logger("tally").debug(f"Select Company '{company_name}' Raw Response:\n{response_xml}") # Log raw response
 
             # Check 1: Empty Envelope means success for this specific method
             if response_xml.strip() == "<ENVELOPE></ENVELOPE>":
-                logging.info(f"Received empty ENVELOPE selecting '{company_name}'. Assuming success.")
+                frappe.logger("tally").info(f"Received empty ENVELOPE selecting '{company_name}'. Assuming success.")
                 return True
 
             # Check 2: Any other response format suggests failure
-            logging.warning(f"Did not receive expected empty ENVELOPE for select company '{company_name}'. Response: {response_xml[:200]}...")
+            frappe.logger("tally").warning(f"Did not receive expected empty ENVELOPE for select company '{company_name}'. Response: {response_xml[:200]}...")
 
             # Optional: Try parsing to log specific errors if present
             try:
@@ -1997,28 +1989,28 @@ class TallyClient:
                 status = root.findtext('.//HEADER/STATUS')
                 errors = root.findall('.//BODY/DATA/LINEERROR')
                 error_text = ", ".join([e.text.strip() for e in errors if e.text])
-                logging.warning(f"Select company '{company_name}' failed. Status: {status}. Errors: {error_text}")
+                frappe.logger("tally").warning(f"Select company '{company_name}' failed. Status: {status}. Errors: {error_text}")
             except ET.ParseError:
-                logging.warning(f"Select company '{company_name}' failed. Response was not valid XML.")
+                frappe.logger("tally").warning(f"Select company '{company_name}' failed. Response was not valid XML.")
             except Exception as parse_e:
-                logging.warning(f"Select company '{company_name}' failed. Error processing unexpected response: {parse_e}")
+                frappe.logger("tally").warning(f"Select company '{company_name}' failed. Error processing unexpected response: {parse_e}")
 
             return False # Explicitly return False if empty envelope wasn't received
 
         except requests.exceptions.ConnectionError:
-            logging.error(f"Connection refused selecting '{company_name}'. Is Tally running/configured on {tally_url}?")
+            frappe.logger("tally").error(f"Connection refused selecting '{company_name}'. Is Tally running/configured on {tally_url}?")
             return False
         except requests.exceptions.Timeout:
-            logging.error(f"Request timed out selecting '{company_name}' on {tally_url}.")
+            frappe.logger("tally").error(f"Request timed out selecting '{company_name}' on {tally_url}.")
             return False
         except requests.exceptions.RequestException as e:
             error_detail = ""
             if e.response is not None:
                 error_detail = f" HTTP Status: {e.response.status_code}. Response: {e.response.text[:200]}..."
-            logging.error(f"Request exception selecting company '{company_name}': {e}{error_detail}")
+            frappe.logger("tally").error(f"Request exception selecting company '{company_name}': {e}{error_detail}")
             return False
         except Exception as e:
-            logging.exception(f"Unexpected error occurred while selecting company '{company_name}'.") # Log full traceback
+            frappe.logger("tally").exception(f"Unexpected error occurred while selecting company '{company_name}'.") # Log full traceback
             return False
 
 # Example usage:
