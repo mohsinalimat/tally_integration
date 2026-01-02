@@ -131,7 +131,7 @@ def sync_ledgers_from_tally(company=None, parent_group=None):
 				ledger.current_balance = ledger_data.get("current_balance", 0)
 				ledger.last_sync_date = now()
 				ledger.sync_status = "Synced"
-				ledger.additional_data = json.dumps(ledger_data, indent=2)
+				ledger.additional_data = json.dumps(ledger_data, indent=2, cls=DateTimeEncoder)
 
 				ledger.save(ignore_permissions=True)
 
@@ -301,7 +301,7 @@ def sync_stock_items_from_tally(company=None):
 				item.gst_rate = item_data.get("gst_rate")
 				item.last_sync_date = now()
 				item.sync_status = "Synced"
-				item.additional_data = json.dumps(item_data, indent=2)
+				item.additional_data = json.dumps(item_data, indent=2, cls=DateTimeEncoder)
 
 				item.save(ignore_permissions=True)
 
@@ -483,7 +483,7 @@ def sync_vouchers_from_tally(voucher_type=None, from_date=None, to_date=None):
 
 				voucher.last_sync_date = now()
 				voucher.sync_status = "Synced"
-				voucher.voucher_data = json.dumps(voucher_data, indent=2)
+				voucher.voucher_data = json.dumps(voucher_data, indent=2, cls=DateTimeEncoder)
 
 				voucher.save(ignore_permissions=True)
 
