@@ -1,6 +1,6 @@
 import requests
-import xml.etree.ElementTree as ET
 import frappe
+from lxml import etree as ET
 
 class TallyClient:
     def __init__(self, tally_url="http://localhost", tally_port=9000, timeout=30):
@@ -1158,10 +1158,11 @@ class TallyClient:
                 frappe.logger("tally").error(f"XML response is an error: {xml_response}")
                 return xml_response  # Return the error string as-is
 
-            # Use a recovering parser to ignore invalid XML characters
-            # This handles cases where Tally returns XML with control characters
+            # Use lxml's recovering parser to handle invalid XML characters from Tally
+            # lxml is already available in Frappe/ERPNext (used for PDF generation)
             parser = ET.XMLParser(recover=True)
             root = ET.fromstring(xml_response.encode('utf-8'), parser=parser)
+            frappe.logger("tally").debug("Parsed with lxml recovering parser")
 
             # Convert XML tree to nested dictionary
             def xml_to_dict(element):
