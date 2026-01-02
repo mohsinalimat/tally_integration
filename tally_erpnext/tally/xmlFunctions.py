@@ -11,30 +11,32 @@ logging.basicConfig(
 )
 
 class TallyClient:
-    def __init__(self, tally_url="http://localhost", tally_port=9000):
+    def __init__(self, tally_url="http://localhost", tally_port=9000, timeout=30):
         """
         Initialize TallyClient with server URL and port
-        
+
         Args:
             tally_url (str): Tally server URL
             tally_port (int): Tally server port
+            timeout (int): Request timeout in seconds (default: 30)
         """
         self.tally_url = tally_url
         self.tally_port = tally_port
+        self.timeout = timeout
         self.endpoint = f"{tally_url}:{tally_port}"
         
     def _send_request(self, xml_request):
         """
         Send XML request to Tally server
-        
+
         Args:
             xml_request (str): XML request string
-            
+
         Returns:
             str: XML response from Tally
         """
         try:
-            response = requests.post(self.endpoint, data=xml_request)
+            response = requests.post(self.endpoint, data=xml_request, timeout=self.timeout)
             if response.status_code == 200:
                 return response.text
             else:
