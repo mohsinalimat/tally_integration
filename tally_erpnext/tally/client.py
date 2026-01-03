@@ -99,6 +99,54 @@ class TallyClient:
 		except Exception:
 			return default
 
+	@staticmethod
+	def _extract_numeric_value(value, default=0):
+		"""
+		Extract numeric value from Tally formatted strings.
+
+		Tally returns values like "234567 Nos", "9.48/Nos", "-2,111,103.00"
+		This function extracts the numeric part.
+
+		Args:
+			value: Value to extract (can be str, int, float, dict, or None)
+			default: Default value if extraction fails (default: 0)
+
+		Returns:
+			float: Numeric value or default
+		"""
+		if value is None:
+			return default
+
+		# If already numeric, return as-is
+		if isinstance(value, (int, float)):
+			return float(value)
+
+		# If it's a dict, try to extract _text key first
+		if isinstance(value, dict):
+			value = value.get('_text', value)
+
+		# Convert to string for parsing
+		if not isinstance(value, str):
+			try:
+				return float(value)
+			except (ValueError, TypeError):
+				return default
+
+		# Remove commas and extract numeric part
+		# Handle formats like: "234567 Nos", "9.48/Nos", "-2,111,103.00", "123.45"
+		import re
+		# Remove commas
+		value = value.replace(',', '')
+		# Extract first number (including negative sign and decimal)
+		match = re.search(r'-?\d+\.?\d*', value)
+		if match:
+			try:
+				return float(match.group())
+			except ValueError:
+				return default
+
+		return default
+
 	def test_connection(self):
 		"""
 		Test connection to Tally server
@@ -182,8 +230,8 @@ class TallyClient:
 					"name": self._extract_value(ledger.get("NAME", ledger.get("@NAME", ""))),
 					"parent": self._extract_value(ledger.get("PARENT", "")),
 					"guid": self._extract_value(ledger.get("GUID", "")),
-					"opening_balance": self._extract_value(ledger.get("OPENINGBALANCE", 0)),
-					"closing_balance": self._extract_value(ledger.get("CLOSINGBALANCE", 0)),
+					"opening_balance": self._extract_numeric_value(ledger.get("OPENINGBALANCE", 0)),
+					"closing_balance": self._extract_numeric_value(ledger.get("CLOSINGBALANCE", 0)),
 					"address": self._extract_value(ledger.get("ADDRESS", "")),
 					"mobile": self._extract_value(ledger.get("LEDGERPHONE", ledger.get("MOBILE", ""))),
 					"email": self._extract_value(ledger.get("EMAIL", "")),
@@ -264,12 +312,12 @@ class TallyClient:
 					"master_id": self._extract_value(item.get("MASTERID", "")),
 					"parent": self._extract_value(item.get("PARENT", "")),
 					"base_units": self._extract_value(item.get("BASEUNITS", "")),
-					"opening_balance": self._extract_value(item.get("OPENINGBALANCE", 0)),
-					"opening_rate": self._extract_value(item.get("OPENINGRATE", 0)),
-					"opening_value": self._extract_value(item.get("OPENINGVALUE", 0)),
-					"current_balance": self._extract_value(item.get("CLOSINGBALANCE", 0)),
-					"current_rate": self._extract_value(item.get("CLOSINGRATE", 0)),
-					"current_value": self._extract_value(item.get("CLOSINGVALUE", 0)),
+					"opening_balance": self._extract_numeric_value(item.get("OPENINGBALANCE", 0)),
+					"opening_rate": self._extract_numeric_value(item.get("OPENINGRATE", 0)),
+					"opening_value": self._extract_numeric_value(item.get("OPENINGVALUE", 0)),
+					"current_balance": self._extract_numeric_value(item.get("CLOSINGBALANCE", 0)),
+					"current_rate": self._extract_numeric_value(item.get("CLOSINGRATE", 0)),
+					"current_value": self._extract_numeric_value(item.get("CLOSINGVALUE", 0)),
 					"hsn_code": self._extract_value(item.get("HSNCODE", "")),
 					"gst_applicable": self._extract_value(item.get("GSTAPPLICABLE", "No")),
 					"gst_rate": self._extract_value(item.get("TAXCLASSIFICATIONNAME", "")),
