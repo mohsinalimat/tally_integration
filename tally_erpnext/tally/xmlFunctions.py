@@ -311,7 +311,63 @@ class TallyClient:
 </ENVELOPE>"""
 
         return self._send_request(xml_request)
-    
+
+    def get_vouchers_list(self, company_name=None, from_date=None, to_date=None):
+        """
+        Get list of vouchers from Tally (simple version similar to get_companies_list)
+
+        Args:
+            company_name (str): Company name (optional)
+            from_date (str): From date in YYYYMMDD format (optional)
+            to_date (str): To date in YYYYMMDD format (optional)
+
+        Returns:
+            str: XML response with vouchers list
+        """
+        # Build STATICVARIABLES section
+        static_vars = "<STATICVARIABLES>\n"
+        if company_name:
+            static_vars += f"                <SVCURRENTCOMPANY>{company_name}</SVCURRENTCOMPANY>\n"
+        if from_date:
+            static_vars += f"                <SVFROMDATE TYPE=\"Date\">{from_date}</SVFROMDATE>\n"
+        if to_date:
+            static_vars += f"                <SVTODATE TYPE=\"Date\">{to_date}</SVTODATE>\n"
+        static_vars += "            </STATICVARIABLES>"
+
+        xml_request = f"""<ENVELOPE>
+    <HEADER>
+        <VERSION>1</VERSION>
+        <TALLYREQUEST>Export</TALLYREQUEST>
+        <TYPE>Collection</TYPE>
+        <ID>List of Vouchers</ID>
+    </HEADER>
+    <BODY>
+        <DESC>
+            {static_vars}
+            <TDL>
+                <TDLMESSAGE>
+                    <COLLECTION ISMODIFY="No" ISFIXED="No" ISINITIALIZE="Yes" ISOPTION="No" ISINTERNAL="No" NAME="List of Vouchers">
+                        <TYPE>Voucher</TYPE>
+                        <FETCH>GUID</FETCH>
+                        <FETCH>MASTERID</FETCH>
+                        <FETCH>VOUCHERTYPENAME</FETCH>
+                        <FETCH>VOUCHERNUMBER</FETCH>
+                        <FETCH>DATE</FETCH>
+                        <FETCH>PARTYLEDGERNAME</FETCH>
+                        <FETCH>NARRATION</FETCH>
+                        <FETCH>REFERENCE</FETCH>
+                        <FETCH>REFERENCEDATE</FETCH>
+                        <FETCH>ISCANCELLED</FETCH>
+                        <FETCH>ALLLEDGERENTRIES.LIST</FETCH>
+                    </COLLECTION>
+                </TDLMESSAGE>
+            </TDL>
+        </DESC>
+    </BODY>
+</ENVELOPE>"""
+
+        return self._send_request(xml_request)
+
     def get_groups_list(self):
         """
         Get list of groups from Tally
