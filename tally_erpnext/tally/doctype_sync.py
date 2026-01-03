@@ -450,6 +450,10 @@ def sync_vouchers_from_tally(voucher_type=None, from_date=None, to_date=None):
 		)
 		frappe.logger("tally_sync").info(f"[{now()}] Fetched {len(vouchers) if vouchers else 0} vouchers from Tally")
 
+		# Capture XML request/response for the fetch operation
+		xml_request = client.get_last_xml_request()
+		xml_response = client.get_last_xml_response()
+
 		for voucher_data in vouchers:
 			try:
 				voucher_number = voucher_data.get("voucher_number")
@@ -508,7 +512,9 @@ def sync_vouchers_from_tally(voucher_type=None, from_date=None, to_date=None):
 					entity_name=voucher_number,
 					reference_doctype="Tally Voucher",
 					reference_name=voucher.name,
-					tally_data=voucher_data
+					tally_data=voucher_data,
+					xml_request=xml_request,
+					xml_response=xml_response
 				)
 
 			except Exception as e:
@@ -525,7 +531,9 @@ def sync_vouchers_from_tally(voucher_type=None, from_date=None, to_date=None):
 					entity_type="Voucher",
 					entity_name=voucher_data.get("voucher_number"),
 					tally_data=voucher_data,
-					error_message=str(e)
+					error_message=str(e),
+					xml_request=xml_request,
+					xml_response=xml_response
 				)
 				continue
 

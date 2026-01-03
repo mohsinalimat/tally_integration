@@ -398,25 +398,48 @@ class TallyClient:
 			return []
 
 	def _extract_vouchers(self, parsed_response):
-		"""Extract vouchers from parsed XML response"""
+		"""Extract vouchers from parsed XML response with all details"""
 		vouchers = []
 		envelope = parsed_response.get("ENVELOPE", parsed_response)
 		body = envelope.get("BODY", envelope)
 		data = body.get("DATA", body)
+		collection = data.get("COLLECTION", data)
 
-		# Try different possible paths
-		voucher_data = data.get("VOUCHER", data.get("TALLYMESSAGE", {}).get("VOUCHER", []))
+		# Try different possible paths for voucher data
+		voucher_data = collection.get("VOUCHER", data.get("VOUCHER", data.get("TALLYMESSAGE", {}).get("VOUCHER", [])))
 		if isinstance(voucher_data, dict):
 			voucher_data = [voucher_data]
 
 		for voucher in voucher_data:
+			# Extract ledger entries
+			ledger_entries = []
+			all_ledger_entries = voucher.get("ALLLEDGERENTRIES.LIST", voucher.get("ALLLEDGERENTRIES", {}).get("LIST", []))
+			if isinstance(all_ledger_entries, dict):
+				all_ledger_entries = [all_ledger_entries]
+
+			for entry in all_ledger_entries:
+				ledger_name = self._extract_value(entry.get("LEDGERNAME", ""))
+				amount = self._extract_numeric_value(entry.get("AMOUNT", 0))
+				is_debit = amount >= 0
+
+				ledger_entries.append({
+					"ledger_name": ledger_name,
+					"amount": abs(amount),
+					"is_debit": is_debit
+				})
+
 			vouchers.append({
-				"voucher_number": self._extract_value(voucher.get("VOUCHERNUMBER", "")),
-				"voucher_type": self._extract_value(voucher.get("VOUCHERTYPENAME", "")),
-				"date": self._extract_value(voucher.get("DATE", "")),
+				"guid": self._extract_value(voucher.get("GUID", "")),
 				"master_id": self._extract_value(voucher.get("MASTERID", "")),
+				"voucher_type": self._extract_value(voucher.get("VOUCHERTYPENAME", "")),
+				"voucher_number": self._extract_value(voucher.get("VOUCHERNUMBER", "")),
+				"date": self._extract_value(voucher.get("DATE", "")),
+				"party_ledger": self._extract_value(voucher.get("PARTYLEDGERNAME", "")),
 				"narration": self._extract_value(voucher.get("NARRATION", "")),
-				"party_name": self._extract_value(voucher.get("PARTYLEDGERNAME", "")),
+				"reference_number": self._extract_value(voucher.get("REFERENCE", "")),
+				"reference_date": self._extract_value(voucher.get("REFERENCEDATE", "")),
+				"is_cancelled": 1 if self._extract_value(voucher.get("ISCANCELLED", "No")) == "Yes" else 0,
+				"ledger_entries": ledger_entries,
 			})
 
 		return vouchers

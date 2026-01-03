@@ -259,14 +259,14 @@ class TallyClient:
     
     def get_vouchers_by_type(self, company_name, from_date, to_date, voucher_type="Attendance"):
         """
-        Get vouchers by type
-        
+        Get vouchers by type with detailed information
+
         Args:
             company_name (str): Company name
-            from_date (str): From date (format: 01-Apr-2010)
-            to_date (str): To date (format: 04-Jun-2021)
+            from_date (str): From date (format: 01-Apr-2010 or YYYYMMDD)
+            to_date (str): To date (format: 04-Jun-2021 or YYYYMMDD)
             voucher_type (str): Voucher type (default: Attendance)
-            
+
         Returns:
             str: XML response with vouchers
         """
@@ -274,59 +274,42 @@ class TallyClient:
     <HEADER>
         <VERSION>1</VERSION>
         <TALLYREQUEST>Export</TALLYREQUEST>
-        <TYPE>Data</TYPE>
-        <ID>List Of Vouchers</ID>
+        <TYPE>Collection</TYPE>
+        <ID>Custom Voucher Collection</ID>
     </HEADER>
     <BODY>
         <DESC>
             <STATICVARIABLES>
-                <SVEXPORTFORMAT>$$SysName:XML</SVEXPORTFORMAT>
+                <SVEXPORTFORMAT>$SysName:XML</SVEXPORTFORMAT>
                 <SVCURRENTCOMPANY>{company_name}</SVCURRENTCOMPANY>
                 <SVFROMDATE TYPE="Date">{from_date}</SVFROMDATE>
                 <SVTODATE TYPE="Date">{to_date}</SVTODATE>
             </STATICVARIABLES>
             <TDL>
                 <TDLMESSAGE>
-                    <REPORT ISMODIFY="No" ISFIXED="No" ISINITIALIZE="No" ISOPTION="No" ISINTERNAL="No" NAME="List Of Vouchers">
-                        <FORMS>List Of Vouchers</FORMS>
-                    </REPORT>
-                    <FORM ISMODIFY="No" ISFIXED="No" ISINITIALIZE="No" ISOPTION="No" ISINTERNAL="No" NAME="List Of Vouchers">
-                        <TOPPARTS>List Of Vouchers</TOPPARTS>
-                        <XMLTAG>ListOfVouchers</XMLTAG>
-                    </FORM>
-                    <PART ISMODIFY="No" ISFIXED="No" ISINITIALIZE="No" ISOPTION="No" ISINTERNAL="No" NAME="List Of Vouchers">
-                        <TOPLINES>List Of Vouchers</TOPLINES>
-                        <REPEAT>List Of Vouchers : FormList Of Vouchers</REPEAT>
-                        <SCROLLED>Vertical</SCROLLED>
-                    </PART>
-                    <LINE ISMODIFY="No" ISFIXED="No" ISINITIALIZE="No" ISOPTION="No" ISINTERNAL="No" NAME="List Of Vouchers">
-                        <LEFTFIELDS>MASTERID</LEFTFIELDS>
-                        <LEFTFIELDS>VoucherNumber</LEFTFIELDS>
-                        <LEFTFIELDS>Date</LEFTFIELDS>
-                    </LINE>
-                    <FIELD ISMODIFY="No" ISFIXED="No" ISINITIALIZE="No" ISOPTION="No" ISINTERNAL="No" NAME="MASTERID">
-                        <SET>$MASTERID</SET>
-                        <XMLTAG>MASTERID</XMLTAG>
-                    </FIELD>
-                    <FIELD ISMODIFY="No" ISFIXED="No" ISINITIALIZE="No" ISOPTION="No" ISINTERNAL="No" NAME="VoucherNumber">
-                        <SET>$VoucherNumber</SET>
-                        <XMLTAG>VoucherNumber</XMLTAG>
-                    </FIELD>
-                    <FIELD ISMODIFY="No" ISFIXED="No" ISINITIALIZE="No" ISOPTION="No" ISINTERNAL="No" NAME="Date">
-                        <SET>$Date</SET>
-                        <XMLTAG>Date</XMLTAG>
-                    </FIELD>
-                    <COLLECTION ISMODIFY="No" ISFIXED="No" ISINITIALIZE="No" ISOPTION="No" ISINTERNAL="No" NAME="FormList Of Vouchers">
+                    <COLLECTION ISMODIFY="No" ISFIXED="No" ISINITIALIZE="Yes" ISOPTION="No" ISINTERNAL="No" NAME="Custom Voucher Collection">
                         <TYPE>Voucher</TYPE>
-                        <FILTERS>VoucherType</FILTERS>
+                        <FILTERS>VoucherTypeFilter, DateFilter</FILTERS>
+                        <FETCH>GUID</FETCH>
+                        <FETCH>MASTERID</FETCH>
+                        <FETCH>VOUCHERTYPENAME</FETCH>
+                        <FETCH>VOUCHERNUMBER</FETCH>
+                        <FETCH>DATE</FETCH>
+                        <FETCH>PARTYLEDGERNAME</FETCH>
+                        <FETCH>NARRATION</FETCH>
+                        <FETCH>REFERENCE</FETCH>
+                        <FETCH>REFERENCEDATE</FETCH>
+                        <FETCH>ISCANCELLED</FETCH>
+                        <FETCH>ALLLEDGERENTRIES.LIST</FETCH>
                     </COLLECTION>
-                    <SYSTEM TYPE="Formulae" NAME="VoucherType">$VoucherTypeName = "{voucher_type}"</SYSTEM>
+                    <SYSTEM TYPE="Formulae" NAME="VoucherTypeFilter">$VoucherTypeName = "{voucher_type}"</SYSTEM>
+                    <SYSTEM TYPE="Formulae" NAME="DateFilter">$Date &gt;= @@SVFROMDATE AND $Date &lt;= @@SVTODATE</SYSTEM>
                 </TDLMESSAGE>
             </TDL>
         </DESC>
     </BODY>
 </ENVELOPE>"""
-        
+
         return self._send_request(xml_request)
     
     def get_groups_list(self):
