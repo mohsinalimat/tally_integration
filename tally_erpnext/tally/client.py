@@ -385,8 +385,8 @@ class TallyClient:
 
 		Args:
 			voucher_type: Type of voucher (Sales, Purchase, etc.)
-			from_date: Start date (format: YYYYMMDD or DD-MMM-YYYY)
-			to_date: End date (format: YYYYMMDD or DD-MMM-YYYY)
+			from_date: Start date (format: YYYYMMDD) - optional, fetches all if not provided
+			to_date: End date (format: YYYYMMDD) - optional, fetches all if not provided
 			company_name: Company name (optional)
 
 		Returns:
@@ -397,12 +397,7 @@ class TallyClient:
 				settings = self.get_tally_settings()
 				company_name = settings.get("default_company", "")
 
-			if not from_date or not to_date:
-				from datetime import datetime, timedelta
-				to_date = datetime.now().strftime("%Y%m%d")
-				from_date = (datetime.now() - timedelta(days=30)).strftime("%Y%m%d")
-
-			# Use the new get_vouchers_list function
+			# Use the new get_vouchers_list function (no date filter if not provided)
 			xml_response = self.client.get_vouchers_list(
 				company_name=company_name,
 				from_date=from_date,
