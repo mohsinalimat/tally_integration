@@ -62,6 +62,10 @@ class TallyClient:
 
 		return {"host": "localhost", "port": 9000, "enabled": False}
 
+	def get_last_xml_request(self):
+		"""Proxy to get the last XML request sent to Tally"""
+		return self.client.get_last_xml_request()
+
 	@staticmethod
 	def _extract_value(value, default=""):
 		"""
