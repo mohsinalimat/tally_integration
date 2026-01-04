@@ -67,6 +67,24 @@ class TallyClient:
 		return self.client.get_last_xml_request()
 
 	@staticmethod
+	def _convert_tally_date(date_str):
+		"""
+		Convert Tally date format (YYYYMMDD) to Frappe format (YYYY-MM-DD)
+
+		Args:
+			date_str: Date string in YYYYMMDD format
+
+		Returns:
+			str: Date in YYYY-MM-DD format or None
+		"""
+		if not date_str or len(date_str) != 8:
+			return None
+		try:
+			return f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}"
+		except Exception:
+			return None
+
+	@staticmethod
 	def _extract_value(value, default=""):
 		"""
 		Extract scalar value from potentially nested dictionary structure.
@@ -439,11 +457,11 @@ class TallyClient:
 				"master_id": self._extract_value(voucher.get("MASTERID", "")),
 				"voucher_type": self._extract_value(voucher.get("VOUCHERTYPENAME", "")),
 				"voucher_number": self._extract_value(voucher.get("VOUCHERNUMBER", "")),
-				"date": self._extract_value(voucher.get("DATE", "")),
+				"date": self._convert_tally_date(self._extract_value(voucher.get("DATE", ""))),
 				"party_ledger": self._extract_value(voucher.get("PARTYLEDGERNAME", "")),
 				"narration": self._extract_value(voucher.get("NARRATION", "")),
 				"reference_number": self._extract_value(voucher.get("REFERENCE", "")),
-				"reference_date": self._extract_value(voucher.get("REFERENCEDATE", "")),
+				"reference_date": self._convert_tally_date(self._extract_value(voucher.get("REFERENCEDATE", ""))),
 				"is_cancelled": 1 if self._extract_value(voucher.get("ISCANCELLED", "No")) == "Yes" else 0,
 				"ledger_entries": ledger_entries,
 			})
