@@ -7,6 +7,7 @@
  "field_order": [
   "ledger_name",
   "is_debit",
+  "is_credit",
   "amount",
   "column_break_2",
   "cost_center",
@@ -21,11 +22,18 @@
    "reqd": 1
   },
   {
-   "default": "1",
+   "default": "0",
    "fieldname": "is_debit",
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Is Debit"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_credit",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Credit"
   },
   {
    "fieldname": "amount",

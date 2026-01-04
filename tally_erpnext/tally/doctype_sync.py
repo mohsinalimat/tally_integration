@@ -484,7 +484,8 @@ def sync_vouchers_from_tally(voucher_type=None, from_date=None, to_date=None):
 				for entry in voucher_data.get("ledger_entries", []):
 					voucher.append("ledger_entries", {
 						"ledger_name": entry.get("ledger_name"),
-						"is_debit": entry.get("is_debit", True),
+						"is_debit": entry.get("is_debit", False),
+						"is_credit": entry.get("is_credit", False),
 						"amount": entry.get("amount", 0)
 					})
 

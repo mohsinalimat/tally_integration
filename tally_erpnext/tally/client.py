@@ -440,11 +440,13 @@ class TallyClient:
 				ledger_name = self._extract_value(entry.get("LEDGERNAME", ""))
 				amount = self._extract_numeric_value(entry.get("AMOUNT", 0))
 				is_debit = amount >= 0
+				is_credit = amount < 0
 
 				ledger_entries.append({
 					"ledger_name": ledger_name,
 					"amount": abs(amount),
-					"is_debit": is_debit
+					"is_debit": is_debit,
+					"is_credit": is_credit
 				})
 
 			vouchers.append({
