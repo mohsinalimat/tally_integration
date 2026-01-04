@@ -380,19 +380,21 @@ class TallyClient:
 				to_date = datetime.now().strftime("%Y%m%d")
 				from_date = (datetime.now() - timedelta(days=30)).strftime("%Y%m%d")
 
-			if voucher_type and from_date and to_date and company_name:
-				xml_response = self.client.get_vouchers_by_type(
-					company_name=company_name,
-					from_date=from_date,
-					to_date=to_date,
-					voucher_type=voucher_type
-				)
-			else:
-				# Use sales report as fallback
-				xml_response = self.client.get_sales_report()
+			# Use the new get_vouchers_list function
+			xml_response = self.client.get_vouchers_list(
+				company_name=company_name,
+				from_date=from_date,
+				to_date=to_date
+			)
 
 			parsed = self.client.parse_xml_response(xml_response)
-			return self._extract_vouchers(parsed)
+			vouchers = self._extract_vouchers(parsed)
+
+			# Filter by voucher_type if specified
+			if voucher_type and vouchers:
+				vouchers = [v for v in vouchers if v.get('voucher_type') == voucher_type]
+
+			return vouchers
 		except Exception as e:
 			frappe.log_error(message=str(e), title=_("Failed to get vouchers"))
 			return []

@@ -16,6 +16,7 @@ class TallyClient:
         self.tally_port = tally_port
         self.timeout = timeout
         self.endpoint = f"{tally_url}:{tally_port}"
+        self.last_xml_request = None
         
     def _send_request(self, xml_request):
         """
@@ -28,6 +29,9 @@ class TallyClient:
             str: XML response from Tally
         """
         try:
+            # Store the request for debugging
+            self.last_xml_request = xml_request
+
             # Log the request
             frappe.logger("tally").info(f"Tally Request to {self.endpoint}:")
             frappe.logger("tally").info(f"Request XML:\n{xml_request}")
@@ -2133,6 +2137,15 @@ class TallyClient:
         except Exception as e:
             frappe.logger("tally").exception(f"Unexpected error occurred while selecting company '{company_name}'.") # Log full traceback
             return False
+
+    def get_last_xml_request(self):
+        """
+        Get the last XML request sent to Tally (for debugging)
+
+        Returns:
+            str: Last XML request or None
+        """
+        return self.last_xml_request
 
 # Example usage:
 if __name__ == "__main__":
